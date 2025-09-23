@@ -21,7 +21,20 @@ private:
 
 	Registers m_registers{};
 
-	uint16_t getBC() const noexcept;
-	void setBC(uint16_t val) noexcept;
+	uint16_t getBC() const noexcept { return getVirtual(m_registers.b, m_registers.c); };
+	void setBC(uint16_t val) noexcept { setVirtual(val, m_registers.b, m_registers.c); };
+
+	uint16_t getAF() const noexcept { return getVirtual(m_registers.a, m_registers.f); };
+	void setAF(uint16_t val) noexcept { setVirtual(val, m_registers.a, m_registers.f); };
+
+	uint16_t getDE() const noexcept { return getVirtual(m_registers.d, m_registers.e); };
+	void setDE(uint16_t val) noexcept { setVirtual(val, m_registers.d, m_registers.e); };
+
+	uint16_t getHL() const noexcept { return getVirtual(m_registers.h, m_registers.l); };
+	void setHL(uint16_t val) noexcept { setVirtual(val, m_registers.h, m_registers.l); };
+
+	uint16_t getVirtual(const uint8_t& high, const uint8_t& low) const noexcept;
+	void setVirtual(uint16_t val, uint8_t& high, uint8_t& low) noexcept;
 };
+
 

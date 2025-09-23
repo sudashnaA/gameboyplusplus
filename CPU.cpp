@@ -1,15 +1,15 @@
 #include "CPU.h"
 
-uint16_t CPU::getBC() const noexcept
+uint16_t CPU::getVirtual(const uint8_t& high, const uint8_t& low) const noexcept
 {
-	return static_cast<uint16_t>(m_registers.b << 8 | m_registers.c);
+	return static_cast<uint16_t>(high << 8 | low);
 }
 
-void CPU::setBC(uint16_t val) noexcept
+void CPU::setVirtual(uint16_t val, uint8_t& high, uint8_t& low) noexcept
 {
-	auto b = static_cast<uint8_t>((val && 0xFF00) >> 8);
-	auto a = static_cast<uint8_t>(val && 0x00FF);
+	auto h = static_cast<uint8_t>((val & 0xFF00) >> 8);
+	auto l = static_cast<uint8_t>(val & 0x00FF);
 
-	m_registers.a = a;
-	m_registers.b = b;
+	high = h;
+	low = l;
 }
