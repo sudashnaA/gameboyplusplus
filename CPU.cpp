@@ -35,7 +35,7 @@ uint8_t CPU::read(ArithmeticTarget target) const noexcept
 	return 0xFF;
 }
 
-void CPU::add(ArithmeticTarget target) noexcept
+void CPU::ADD(ArithmeticTarget target) noexcept
 {
 	auto t{ read(target) };
 	auto a{ read(ArithmeticTarget::A) };
@@ -46,7 +46,7 @@ void CPU::add(ArithmeticTarget target) noexcept
 	m_registers.a = result;
 }
 
-void CPU::addHL(ArithmeticTarget target) noexcept 
+void CPU::ADDHL(ArithmeticTarget target) noexcept 
 {
 	auto t{ read(target) };
 	auto hl{ getHL() };
@@ -57,7 +57,7 @@ void CPU::addHL(ArithmeticTarget target) noexcept
 	setHL(result);
 }
 
-void CPU::adc(ArithmeticTarget target) noexcept
+void CPU::ADC(ArithmeticTarget target) noexcept
 {
 	auto t{ read(target) };
 	auto a{ read(ArithmeticTarget::A) };
@@ -70,13 +70,26 @@ void CPU::adc(ArithmeticTarget target) noexcept
 	m_registers.a = result;
 }
 
-void CPU::sub(ArithmeticTarget target) noexcept
+void CPU::SUB(ArithmeticTarget target) noexcept
 {
 	auto t{ read(target) };
 	auto a{ read(ArithmeticTarget::A) };
 
 	auto [result, underflow] { underflowingSubtract(a, t) };
 
+	updateFlagRegister(result == 0, underflow, isHalfCarry(a, t), false);
+
+	m_registers.a = result;
+}
+
+void CPU::SBC(ArithmeticTarget target) noexcept
+{
+	auto t{ read(target) };
+	auto a{ read(ArithmeticTarget::A) };
+
+	t = overflowingAdd(t, m_flagRegister.carry).first;
+
+	auto [result, underflow] { underflowingSubtract(a, t) };
 	updateFlagRegister(result == 0, underflow, isHalfCarry(a, t), false);
 
 	m_registers.a = result;

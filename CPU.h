@@ -33,10 +33,11 @@ private:
 	uint8_t read(ArithmeticTarget target) const noexcept;
 
 	// Instructions
-	void add(ArithmeticTarget target) noexcept;
-	void addHL(ArithmeticTarget target) noexcept;
-	void adc(ArithmeticTarget target) noexcept;
-	void sub(ArithmeticTarget target) noexcept;
+	void ADD(ArithmeticTarget target) noexcept;
+	void ADDHL(ArithmeticTarget target) noexcept;
+	void ADC(ArithmeticTarget target) noexcept;
+	void SUB(ArithmeticTarget target) noexcept;
+	void SBC(ArithmeticTarget target) noexcept;
 
 	struct FlagRegister {
 		FlagRegister() = default;
