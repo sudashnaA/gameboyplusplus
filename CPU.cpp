@@ -1,9 +1,17 @@
 #include "CPU.h"
+#include "util.h"
 
-void CPU::updateFlagRegister(uint8_t val) noexcept
+void CPU::updateFlagRegister(bool zero, bool carry, bool halfCarry, bool subtract) noexcept
 {
-	m_flagRegister.zero = val == 0;
-	m_flagRegister.subtract = false;
+	m_flagRegister.zero = zero;
+	m_flagRegister.subtract = subtract;
+	m_flagRegister.carry = carry;
+	m_flagRegister.halfCarry = halfCarry;
+}
+
+bool CPU::isHalfCarry(uint8_t oldVal, uint8_t newVal) const noexcept
+{
+	return ((oldVal & 0xF) + (newVal & 0xF)) > 0xF;
 }
 
 uint8_t CPU::read(ArithmeticTarget target) const noexcept
@@ -26,7 +34,9 @@ void CPU::add(ArithmeticTarget target) noexcept
 	auto reg{ read(target) };
 	auto a{ read(ArithmeticTarget::A) };
 	
-	auto result{ a += reg };
+	auto [result, overflow] = overflowingAdd(a, reg);
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, reg), false);
+
 	m_registers.a = result;
 }
 
