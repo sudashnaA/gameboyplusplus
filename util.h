@@ -13,7 +13,7 @@ constexpr auto inline toUType(E enumerator) noexcept
 template <typename T, typename U>
 std::tuple<T, bool> overflowingAdd(T a, U b)
 {
-	auto result = a + b;
-	bool overflow = result > std::numeric_limits<T>;
+	auto result{ a + b };
+	bool overflow{ result > std::numeric_limits<T>::max()};
 	return { static_cast<T>(result), overflow };
 }

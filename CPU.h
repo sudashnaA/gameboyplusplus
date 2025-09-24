@@ -26,6 +26,8 @@ private:
 	};
 
 	bool isHalfCarry(uint8_t oldVal, uint8_t newVal) const noexcept;
+	bool isHalfCarry16(uint16_t oldVal, uint16_t newVal) const noexcept;
+
 	void updateFlagRegister(bool zero, bool carry, bool halfCarry, bool subtract) noexcept;
 
 	uint8_t read(ArithmeticTarget target) const noexcept;

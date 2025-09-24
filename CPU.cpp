@@ -14,6 +14,11 @@ bool CPU::isHalfCarry(uint8_t oldVal, uint8_t newVal) const noexcept
 	return ((oldVal & 0xF) + (newVal & 0xF)) > 0xF;
 }
 
+bool CPU::isHalfCarry16(uint16_t oldVal, uint16_t newVal) const noexcept 
+{
+	return ((oldVal & 0x0FFF) + (newVal & 0x0FFF)) > 0x0FFF;
+}
+
 uint8_t CPU::read(ArithmeticTarget target) const noexcept
 {
 	switch (target) {
@@ -46,7 +51,7 @@ void CPU::addHL(ArithmeticTarget target) noexcept
 	auto hl{ getHL() };
 
 	auto [result, overflow] = overflowingAdd(hl, t);
-	updateFlagRegister(result == 0, overflow, isHalfCarry(t, hl), false);
+	updateFlagRegister(result == 0, overflow, isHalfCarry16(hl, t), false);
 
 	setHL(result);
 }
