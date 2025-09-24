@@ -1,3 +1,4 @@
+#include <tuple>
 #include "CPU.h"
 #include "util.h"
 
@@ -39,7 +40,7 @@ void CPU::add(ArithmeticTarget target) noexcept
 	auto t{ read(target) };
 	auto a{ read(ArithmeticTarget::A) };
 	
-	auto [result, overflow] = overflowingAdd(a, t);
+	auto [result, overflow] { overflowingAdd(a, t) };
 	updateFlagRegister(result == 0, overflow, isHalfCarry(a, t), false);
 
 	m_registers.a = result;
@@ -50,10 +51,23 @@ void CPU::addHL(ArithmeticTarget target) noexcept
 	auto t{ read(target) };
 	auto hl{ getHL() };
 
-	auto [result, overflow] = overflowingAdd(hl, t);
+	auto [result, overflow] { overflowingAdd(hl, t) };
 	updateFlagRegister(result == 0, overflow, isHalfCarry16(hl, t), false);
 
 	setHL(result);
+}
+
+void CPU::adc(ArithmeticTarget target) noexcept
+{
+	auto t{ read(target) };
+	auto a{ read(ArithmeticTarget::A) };
+
+	auto [result, overflow] { overflowingAdd(a, t) };
+	std::tie(result, overflow) = overflowingAdd(result, m_flagRegister.carry);
+
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, t), false);
+
+	m_registers.a = result;
 }
 
 uint16_t CPU::getVirtual(const uint8_t& high, const uint8_t& low) const noexcept
