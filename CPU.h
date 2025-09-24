@@ -30,6 +30,7 @@ private:
 
 	uint8_t read(ArithmeticTarget target) const noexcept;
 	void add(ArithmeticTarget target) noexcept;
+	void addHL(ArithmeticTarget target) noexcept;
 
 	struct FlagRegister {
 		FlagRegister() = default;

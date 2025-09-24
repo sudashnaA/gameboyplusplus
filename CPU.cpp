@@ -31,13 +31,24 @@ uint8_t CPU::read(ArithmeticTarget target) const noexcept
 
 void CPU::add(ArithmeticTarget target) noexcept
 {
-	auto reg{ read(target) };
+	auto t{ read(target) };
 	auto a{ read(ArithmeticTarget::A) };
 	
-	auto [result, overflow] = overflowingAdd(a, reg);
-	updateFlagRegister(result == 0, overflow, isHalfCarry(a, reg), false);
+	auto [result, overflow] = overflowingAdd(a, t);
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, t), false);
 
 	m_registers.a = result;
+}
+
+void CPU::addHL(ArithmeticTarget target) noexcept 
+{
+	auto t{ read(target) };
+	auto hl{ getHL() };
+
+	auto [result, overflow] = overflowingAdd(hl, t);
+	updateFlagRegister(result == 0, overflow, isHalfCarry(t, hl), false);
+
+	setHL(result);
 }
 
 uint16_t CPU::getVirtual(const uint8_t& high, const uint8_t& low) const noexcept
