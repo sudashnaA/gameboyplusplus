@@ -15,6 +15,21 @@ private:
 		zero = 7,
 	};
 
+	enum class ArithmeticTarget {
+		A,
+		B,
+		C,
+		D,
+		E,
+		H,
+		L,
+	};
+
+	void updateFlagRegister(uint8_t val) noexcept;
+
+	uint8_t read(ArithmeticTarget target) const noexcept;
+	void add(ArithmeticTarget target) noexcept;
+
 	struct FlagRegister {
 		FlagRegister() = default;
 
@@ -56,8 +71,6 @@ private:
 
 	Registers m_registers{};
 	FlagRegister m_flagRegister{};
-
-
 
 	uint16_t getBC() const noexcept { return getVirtual(m_registers.b, m_registers.c); };
 	void setBC(uint16_t val) noexcept { setVirtual(val, m_registers.b, m_registers.c); };
