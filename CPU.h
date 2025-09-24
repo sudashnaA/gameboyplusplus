@@ -36,6 +36,7 @@ private:
 	void add(ArithmeticTarget target) noexcept;
 	void addHL(ArithmeticTarget target) noexcept;
 	void adc(ArithmeticTarget target) noexcept;
+	void sub(ArithmeticTarget target) noexcept;
 
 	struct FlagRegister {
 		FlagRegister() = default;

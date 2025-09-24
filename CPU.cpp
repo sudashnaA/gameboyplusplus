@@ -70,6 +70,18 @@ void CPU::adc(ArithmeticTarget target) noexcept
 	m_registers.a = result;
 }
 
+void CPU::sub(ArithmeticTarget target) noexcept
+{
+	auto t{ read(target) };
+	auto a{ read(ArithmeticTarget::A) };
+
+	auto [result, underflow] { underflowingSubtract(a, t) };
+
+	updateFlagRegister(result == 0, underflow, isHalfCarry(a, t), false);
+
+	m_registers.a = result;
+}
+
 uint16_t CPU::getVirtual(const uint8_t& high, const uint8_t& low) const noexcept
 {
 	return static_cast<uint16_t>(high << 8 | low);

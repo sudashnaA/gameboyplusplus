@@ -17,3 +17,11 @@ std::pair<T, bool> overflowingAdd(T a, U b)
 	bool overflow{ result > std::numeric_limits<T>::max()};
 	return { static_cast<T>(result), overflow };
 }
+
+template <typename T, typename U>
+std::pair<T, bool> underflowingSubtract(T a, U b)
+{
+	auto result{ a - b };
+	bool underflow{ result < std::numeric_limits<T>::min() };
+	return { static_cast<T>(result), underflow };
+}
