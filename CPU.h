@@ -37,6 +37,7 @@ private:
 	void ADDHL(ArithmeticTarget target) noexcept;
 
 	void ADC_A(ArithmeticTarget target) noexcept;
+	void ADC_A_HL() noexcept;
 
 	void SUB(ArithmeticTarget target) noexcept;
 	void SBC(ArithmeticTarget target) noexcept;

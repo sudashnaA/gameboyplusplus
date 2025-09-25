@@ -57,19 +57,6 @@ void CPU::ADDHL(ArithmeticTarget target) noexcept
 	setHL(result);
 }
 
-void CPU::ADC_A(ArithmeticTarget target) noexcept
-{
-	auto t{ read(target) };
-	auto a{ read(ArithmeticTarget::A) };
-
-	auto [result, overflow] { overflowingAdd(a, t) };
-	std::tie(result, overflow) = overflowingAdd(result, m_flagRegister.carry);
-
-	updateFlagRegister(result == 0, overflow, isHalfCarry(a, t), false);
-
-	m_registers.a = result;
-}
-
 void CPU::SUB(ArithmeticTarget target) noexcept
 {
 	auto t{ read(target) };
@@ -104,6 +91,32 @@ void CPU::AND(ArithmeticTarget target) noexcept
 
 	updateFlagRegister(result == 0, false, true, false);
 
+	m_registers.a = result;
+}
+
+void CPU::ADC_A(ArithmeticTarget target) noexcept
+{
+	auto t{ read(target) };
+	auto a{ read(ArithmeticTarget::A) };
+
+	auto [result, overflow] { overflowingAdd(a, t) };
+	std::tie(result, overflow) = overflowingAdd(result, m_flagRegister.carry);
+
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, t), false);
+
+	m_registers.a = result;
+}
+
+void CPU::ADC_A_HL() noexcept 
+{
+	auto hl{ getHL() };
+	auto a{ read(ArithmeticTarget::A) };
+
+	auto [result, overflow] { overflowingAdd(a, hl) };
+	std::tie(result, overflow) = overflowingAdd(result, m_flagRegister.carry);
+
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, hl), false);
+	
 	m_registers.a = result;
 }
 
