@@ -35,9 +35,12 @@ private:
 	// Instructions
 	void ADD(ArithmeticTarget target) noexcept;
 	void ADDHL(ArithmeticTarget target) noexcept;
-	void ADC(ArithmeticTarget target) noexcept;
+
+	void ADC_A(ArithmeticTarget target) noexcept;
+
 	void SUB(ArithmeticTarget target) noexcept;
 	void SBC(ArithmeticTarget target) noexcept;
+	void AND(ArithmeticTarget target) noexcept;
 
 	struct FlagRegister {
 		FlagRegister() = default;
