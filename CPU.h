@@ -33,7 +33,9 @@ private:
 	uint8_t read(ArithmeticTarget target) const noexcept;
 
 	// Instructions
-	void ADD(ArithmeticTarget target) noexcept;
+	void ADD_A_R8(ArithmeticTarget target) noexcept;
+	void ADD_A_HL() noexcept;
+	void ADD_A_N8(uint8_t n8) noexcept;
 	void ADDHL(ArithmeticTarget target) noexcept;
 
 	void ADC_A_R8(ArithmeticTarget target) noexcept;

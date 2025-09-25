@@ -35,28 +35,6 @@ uint8_t CPU::read(ArithmeticTarget target) const noexcept
 	return 0xFF;
 }
 
-void CPU::ADD(ArithmeticTarget target) noexcept
-{
-	auto t{ read(target) };
-	auto a{ read(ArithmeticTarget::A) };
-	
-	auto [result, overflow] { overflowingAdd(a, t) };
-	updateFlagRegister(result == 0, overflow, isHalfCarry(a, t), false);
-
-	m_registers.a = result;
-}
-
-void CPU::ADDHL(ArithmeticTarget target) noexcept 
-{
-	auto t{ read(target) };
-	auto hl{ getHL() };
-
-	auto [result, overflow] { overflowingAdd(hl, t) };
-	updateFlagRegister(result == 0, overflow, isHalfCarry16(hl, t), false);
-
-	setHL(result);
-}
-
 void CPU::SUB(ArithmeticTarget target) noexcept
 {
 	auto t{ read(target) };
@@ -94,7 +72,8 @@ void CPU::AND(ArithmeticTarget target) noexcept
 	m_registers.a = result;
 }
 
-void CPU::ADC_A(ArithmeticTarget target) noexcept
+// Add with carry
+void CPU::ADC_A_R8(ArithmeticTarget target) noexcept
 {
 	auto t{ read(target) };
 	auto a{ read(ArithmeticTarget::A) };
@@ -125,8 +104,53 @@ void CPU::ADC_A_N8(uint8_t n8) noexcept
 	auto [result, overflow] { overflowingAdd(a, n8) };
 	std::tie(result, overflow) = overflowingAdd(result, m_flagRegister.carry);
 
-	updateFlagRegister(result == 0, overflow, isHalfCarry(a, a), false);
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, n8), false);
 	m_registers.a = result;
+}
+
+// ADD
+void CPU::ADD_A_R8(ArithmeticTarget target) noexcept
+{
+	auto t{ read(target) };
+	auto a{ read(ArithmeticTarget::A) };
+
+	auto [result, overflow] { overflowingAdd(a, t) };
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, t), false);
+
+	m_registers.a = result;
+}
+
+void CPU::ADD_A_HL() noexcept
+{
+	auto t{ getHL()};
+	auto a{ read(ArithmeticTarget::A) };
+
+	auto [result, overflow] { overflowingAdd(a, t) };
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, static_cast<uint8_t>(t)), false);
+
+	m_registers.a = result;
+}
+
+void CPU::ADD_A_N8(uint8_t n8) noexcept
+{
+	auto a{ read(ArithmeticTarget::A) };
+
+	auto [result, overflow] { overflowingAdd(a, n8) };
+
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, n8), false);
+	m_registers.a = result;
+}
+
+// ADDHL
+void CPU::ADDHL(ArithmeticTarget target) noexcept
+{
+	auto t{ read(target) };
+	auto hl{ getHL() };
+
+	auto [result, overflow] { overflowingAdd(hl, t) };
+	updateFlagRegister(result == 0, overflow, isHalfCarry16(hl, t), false);
+
+	setHL(result);
 }
 
 uint16_t CPU::getVirtual(const uint8_t& high, const uint8_t& low) const noexcept
