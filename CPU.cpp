@@ -103,7 +103,6 @@ void CPU::ADC_A(ArithmeticTarget target) noexcept
 	std::tie(result, overflow) = overflowingAdd(result, m_flagRegister.carry);
 
 	updateFlagRegister(result == 0, overflow, isHalfCarry(a, t), false);
-
 	m_registers.a = result;
 }
 
@@ -115,8 +114,18 @@ void CPU::ADC_A_HL() noexcept
 	auto [result, overflow] { overflowingAdd(a, hl) };
 	std::tie(result, overflow) = overflowingAdd(result, m_flagRegister.carry);
 
-	updateFlagRegister(result == 0, overflow, isHalfCarry(a, hl), false);
-	
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, static_cast<uint8_t>(hl)), false);
+	m_registers.a = result;
+}
+
+void CPU::ADC_A_N8(uint8_t n8) noexcept
+{
+	auto a{ read(ArithmeticTarget::A) };
+
+	auto [result, overflow] { overflowingAdd(a, n8) };
+	std::tie(result, overflow) = overflowingAdd(result, m_flagRegister.carry);
+
+	updateFlagRegister(result == 0, overflow, isHalfCarry(a, a), false);
 	m_registers.a = result;
 }
 
