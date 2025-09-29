@@ -20,14 +20,11 @@ private:
 		uint16_t globalChecksum;
 	};
 
-	typedef struct {
-		std::array<char, 1024> filename;
-		uint32_t rom_size;
-		uint8_t* rom_data;
-		RomHeader* header;
-	} CartContext;
+	std::array<char, 1024> filename;
+	uint32_t rom_size;
+	uint8_t rom_data;
+	RomHeader header;
 
 public:
 	bool cartLoad(char* path);
-	CartContext context;
 };
