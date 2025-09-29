@@ -3,11 +3,8 @@
 #include <cstdint>
 
 class Cart {
-public:
-	bool cartLoad(char* path);
-
 private:
-	struct romHeader {
+	struct RomHeader {
 		std::array<uint8_t, 4> entry;
 		std::array<uint8_t, 48> logo;
 		std::array<char, 16> title;
@@ -22,4 +19,15 @@ private:
 		uint8_t checkSum;
 		uint16_t globalChecksum;
 	};
+
+	typedef struct {
+		std::array<char, 1024> filename;
+		uint32_t rom_size;
+		uint8_t* rom_data;
+		RomHeader* header;
+	} CartContext;
+
+public:
+	bool cartLoad(char* path);
+	CartContext context;
 };
