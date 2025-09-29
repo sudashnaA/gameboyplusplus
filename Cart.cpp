@@ -1,6 +1,7 @@
-#include "Cart.h"
 #include <iostream>
 #include <fstream>
+#include <memory>
+#include "Cart.h"
 
 bool Cart::cartLoad(char* path)
 {
@@ -8,13 +9,19 @@ bool Cart::cartLoad(char* path)
 
 	file.seekg(std::ios::end);
 
-	rom_size = static_cast<uint32_t>(file.tellg());
+	romSize = static_cast<uint32_t>(file.tellg());
 
 	file.clear();
 	file.seekg(0);
 
-	file.read(reinterpret_cast<char*>(rom_data), rom_size);
+	std::allocator<uint8_t> alloc;
+
+	romData = alloc.allocate(romSize);
+	file.read(reinterpret_cast<char*>(romData), romSize);
 	file.close();
+
+	header = reinterpret_cast<RomHeader*>(romData + 0x100);
+	header->title[15] = 0;
 
 	return false;
 }

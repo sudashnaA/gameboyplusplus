@@ -21,9 +21,9 @@ private:
 	};
 
 	std::array<char, 1024> filename;
-	uint32_t rom_size;
-	uint8_t rom_data;
-	RomHeader header;
+	uint32_t romSize;
+	uint8_t* romData;
+	RomHeader* header;
 
 public:
 	bool cartLoad(char* path);
