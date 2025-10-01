@@ -1,6 +1,8 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <string>
+#include <memory>
 
 class Cart {
 private:
@@ -26,5 +28,5 @@ private:
 	RomHeader* header;
 
 public:
-	bool cartLoad(char* path);
+	bool cartLoad(std::string path);
 };
