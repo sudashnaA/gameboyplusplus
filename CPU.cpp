@@ -2,9 +2,32 @@
 #include "CPU.h"
 #include "util.h"
 
+CPU::CPU(std::shared_ptr<Bus> b)
+	: m_pBus{b}
+{}
+
 bool CPU::cpuStep()
 {
+	if (!m_halted) {
+		fetchInstruction();
+		fetchData();
+		execute();
+	}
+
 	return false;
+}
+
+void CPU::fetchInstruction()
+{
+	m_curOpcode;
+}
+
+void CPU::fetchData()
+{
+}
+
+void CPU::execute()
+{
 }
 
 //void CPU::updateFlagRegister(bool zero, bool carry, bool halfCarry, bool subtract) noexcept

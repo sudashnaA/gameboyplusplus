@@ -17,5 +17,5 @@ private:
 
 	std::shared_ptr<Cart> m_cart;
 	std::shared_ptr<CPU> m_cpu;
-	Bus m_bus;
+	std::shared_ptr<Bus> m_bus;
 };

@@ -4,8 +4,8 @@
 
 Emulator::Emulator()
 	: m_cart{ std::make_shared<Cart>() }
-	, m_cpu{ std::make_shared<CPU>() }
-	, m_bus{ m_cart }
+	, m_bus{ std::make_shared<Bus>(m_cart) }
+	, m_cpu{ std::make_shared<CPU>(m_bus) }
 {
 }
 

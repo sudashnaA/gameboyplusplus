@@ -1,11 +1,19 @@
 #pragma once
 #include <cstdint>
+#include <memory>
 #include "util.h"
+#include "Bus.h"
+#include "Instruction.h"
 
 class CPU
 {
 public:
+	CPU(std::shared_ptr<Bus> b);
+
 	bool cpuStep();
+	void fetchInstruction();
+	void fetchData();
+	void execute();
 
 private:
 	enum class FlagRegisterPositions {
@@ -54,7 +62,8 @@ private:
 			, subtract{ static_cast<bool>(val & (1 << toUType(FlagRegisterPositions::subtract))) }
 			, halfCarry{ static_cast<bool>(val & (1 << toUType(FlagRegisterPositions::halfCarry))) }
 			, carry{ static_cast<bool>(val & (1 << toUType(FlagRegisterPositions::carry))) }
-		{}
+		{
+		}
 
 		bool zero{};
 		bool subtract{};
@@ -93,8 +102,10 @@ private:
 	uint8_t m_curOpcode{};
 	bool m_halted{};
 	bool m_stepping{};
+	std::unique_ptr<Instruction> m_currInstruction{};
 
 	FlagRegister m_flagRegister{};
+	std::shared_ptr<Bus> m_pBus;
 
 	/*uint16_t getBC() const noexcept { return getVirtual(m_registers.b, m_registers.c); };
 	void setBC(uint16_t val) noexcept { setVirtual(val, m_registers.b, m_registers.c); };
