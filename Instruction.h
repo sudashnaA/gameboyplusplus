@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <memory>
 
 enum class AddressMode {
     AM_IMP,
@@ -112,3 +113,4 @@ struct Instruction
     uint8_t param{};
 };
 
+std::unique_ptr<Instruction> instructionByOpcode(uint8_t opcode);

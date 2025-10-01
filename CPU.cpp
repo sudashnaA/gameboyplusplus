@@ -19,7 +19,7 @@ bool CPU::cpuStep()
 
 void CPU::fetchInstruction()
 {
-	m_curOpcode;
+	m_curOpcode = m_pBus->busRead(m_registers.pc++);
 }
 
 void CPU::fetchData()

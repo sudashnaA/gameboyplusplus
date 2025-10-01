@@ -19,3 +19,10 @@ constexpr auto getInstructions()
 
 	return instructions;
 }
+
+constexpr auto instructions = getInstructions();
+
+std::unique_ptr<Instruction> instructionByOpcode(uint8_t opcode)
+{
+	return std::make_unique<Instruction>(instructions[opcode]);
+}
