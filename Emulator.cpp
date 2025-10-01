@@ -2,11 +2,18 @@
 #include "SDL.h"
 #include <iostream>
 
+Emulator::Emulator()
+	: cart{ std::make_shared<Cart>() }
+	, cpu{ std::make_shared<CPU>() }
+	, bus{ cart }
+{
+}
+
 int Emulator::run(std::string path)
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	cart.cartLoad(path);
+	cart->cartLoad(path);
 
 	while (running)
 	{
@@ -15,7 +22,7 @@ int Emulator::run(std::string path)
 			continue;
 		}
 
-		if (!cpu.cpuStep()) {
+		if (!cpu->cpuStep()) {
 			std::cout << "CPU stopped\n";
 			return -1;
 		}
