@@ -4,6 +4,16 @@
 #include <iomanip>
 #include "Cart.h"
 
+uint8_t Cart::cartRead(uint16_t address)
+{
+	return m_romData[address];
+}
+
+void Cart::cartWrite(uint16_t address, uint8_t value)
+{
+	return;
+}
+
 bool Cart::cartLoad(std::string path)
 {
 	std::ifstream file{path, std::ios::binary | std::ios::ate};

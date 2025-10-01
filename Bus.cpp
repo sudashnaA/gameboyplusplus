@@ -19,15 +19,17 @@ Bus::Bus(std::shared_ptr<Cart> c)
 {
 }
 
-//uint8_t Bus::busRead(uint16_t address)
-//{
-//	if (address < 0x8000) {
-//
-//	}
-//	return 0;
-//}
-//
-//uint8_t Bus::busWrite(uint16_t address, uint8_t value)
-//{
-//	return 0;
-//}
+uint8_t Bus::busRead(uint16_t address)
+{
+	if (address < 0x8000) {
+		return m_pCart->cartRead(address);
+	}
+	return 0;
+}
+
+void Bus::busWrite(uint16_t address, uint8_t value)
+{
+	if (address < 0x8000) {
+		m_pCart->cartWrite(address, value);
+	}
+}

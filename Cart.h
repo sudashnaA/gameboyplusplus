@@ -28,6 +28,9 @@ private:
 	RomHeader* m_header;
 
 public:
+	uint8_t cartRead(uint16_t address);
+	void cartWrite(uint16_t address, uint8_t value);
+
 	bool cartLoad(std::string path);
 	void printCartInfo() const;
 };
