@@ -1,6 +1,7 @@
 #include <tuple>
 #include "CPU.h"
 #include "util.h"
+#include "Emulator.h"
 
 CPU::CPU(std::shared_ptr<Bus> b)
 	: m_pBus{b}
@@ -47,7 +48,11 @@ void CPU::fetchData()
 		return;
 	case AM_D16: {
 		auto low = m_pBus->busRead(m_registers.pc);
+		emulatorCycles(1);
+
 		auto high = m_pBus->busRead(m_registers.pc + 1u);
+		emulatorCycles(1);
+
 		m_fetchedData = static_cast<uint16_t>(low | (high << 8));
 		m_registers.pc += 2;
 		return;
@@ -60,4 +65,13 @@ void CPU::fetchData()
 
 void CPU::execute()
 {
+}
+
+void CPU::emulatorCycles(int cpuCycles)
+{
+	std::shared_ptr<Emulator> ptr{ m_pEmu.lock() };
+	if (ptr) {
+		ptr->emulatorCycles(cpuCycles);
+		return;
+	}
 }

@@ -44,6 +44,8 @@ private:
 	std::unique_ptr<Instruction> m_currInstruction{};
 	std::shared_ptr<Bus> m_pBus;
 	std::weak_ptr<Emulator> m_pEmu;
+
+	void emulatorCycles(int cpuCycles);
 };
 
 
