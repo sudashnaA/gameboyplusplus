@@ -30,7 +30,6 @@ bool Cart::cartLoad(std::string path)
 	header->title[15] = 0;
 
 	printCartInfo();
-
 	return true;
 }
 
@@ -38,7 +37,7 @@ void Cart::printCartInfo() const
 {
 	std::cout << "Title: " << header->title.data() << std::endl;
 	std::cout << "Type: " << (header->type | 0) << std::endl;
-	std::cout << "ROM Size: " << (header->romSize | 0) << std::endl;
+	std::cout << "ROM Size: " << (32 << (header->romSize | 0)) << " KB" << std::endl;
 	std::cout << "RAM Size: " << (header->ramSize | 0) << std::endl;
 	std::cout << "LIC Code: " << (header->licCode | 0) << std::endl;
 	std::cout << "ROM Version: " << (header->version | 0) << std::endl;
