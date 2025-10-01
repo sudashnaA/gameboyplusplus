@@ -29,4 +29,5 @@ private:
 
 public:
 	bool cartLoad(std::string path);
+	void printCartInfo() const;
 };

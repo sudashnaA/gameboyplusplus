@@ -6,6 +6,6 @@ int main(int argc, char* argv[])
     (int)argc, (char*)argv;
 
     Emulator e{};
-    e.run("dmg-acid2.gb");
+    e.run("Super Mario Land (World).gb");
     return 0;
 }

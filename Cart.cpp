@@ -29,12 +29,19 @@ bool Cart::cartLoad(std::string path)
 	header = reinterpret_cast<RomHeader*>(romData + 0x100);
 	header->title[15] = 0;
 
-	std::cout << header->title.data() << std::endl;
-	std::cout << (header->type | 0) << std::endl;
-	std::cout << (header->romSize | 0) << std::endl;
-	std::cout << (header->ramSize | 0) << std::endl;
-	std::cout << (header->licCode | 0) << std::endl;
-	std::cout << (header->version | 0) << std::endl;
+	printCartInfo();
+
+	return true;
+}
+
+void Cart::printCartInfo() const
+{
+	std::cout << "Title: " << header->title.data() << std::endl;
+	std::cout << "Type: " << (header->type | 0) << std::endl;
+	std::cout << "ROM Size: " << (header->romSize | 0) << std::endl;
+	std::cout << "RAM Size: " << (header->ramSize | 0) << std::endl;
+	std::cout << "LIC Code: " << (header->licCode | 0) << std::endl;
+	std::cout << "ROM Version: " << (header->version | 0) << std::endl;
 
 	uint16_t x{ 0 };
 	for (uint16_t i{ 0x0134 }; i <= 0x014C; i++) {
@@ -43,6 +50,4 @@ bool Cart::cartLoad(std::string path)
 
 	std::cout << "Checksum: " << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << header->checkSum
 		<< " " << ((x & 0xFF) ? "PASSED" : "FAILED") << std::endl;
-
-	return true;
 }
