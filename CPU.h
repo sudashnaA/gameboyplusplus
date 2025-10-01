@@ -5,10 +5,14 @@
 #include "Bus.h"
 #include "Instruction.h"
 
+class Emulator;
+
 class CPU
 {
 public:
 	CPU(std::shared_ptr<Bus> b);
+
+	void connectEmulator(std::shared_ptr<Emulator> e);
 
 	bool cpuStep();
 	void fetchInstruction();
@@ -16,72 +20,6 @@ public:
 	void execute();
 
 private:
-	enum class FlagRegisterPositions {
-		carry = 4,
-		halfCarry = 5,
-		subtract = 6,
-		zero = 7,
-	};
-
-	enum class ArithmeticTarget {
-		A,
-		B,
-		C,
-		D,
-		E,
-		H,
-		L,
-	};
-
-	bool isHalfCarry(uint8_t oldVal, uint8_t newVal) const noexcept;
-	bool isHalfCarry16(uint16_t oldVal, uint16_t newVal) const noexcept;
-
-	void updateFlagRegister(bool zero, bool carry, bool halfCarry, bool subtract) noexcept;
-
-	uint8_t read(ArithmeticTarget target) const noexcept;
-
-	// Instructions
-	void ADD_A_R8(ArithmeticTarget target) noexcept;
-	void ADD_A_HL() noexcept;
-	void ADD_A_N8(uint8_t n8) noexcept;
-	void ADDHL(ArithmeticTarget target) noexcept;
-
-	void ADC_A_R8(ArithmeticTarget target) noexcept;
-	void ADC_A_HL() noexcept;
-	void ADC_A_N8(uint8_t n8) noexcept;
-
-	void SUB(ArithmeticTarget target) noexcept;
-	void SBC(ArithmeticTarget target) noexcept;
-	void AND(ArithmeticTarget target) noexcept;
-
-	struct FlagRegister {
-		FlagRegister() = default;
-
-		FlagRegister(uint8_t val)
-			: zero{ static_cast<bool>(val & (1 << toUType(FlagRegisterPositions::zero))) }
-			, subtract{ static_cast<bool>(val & (1 << toUType(FlagRegisterPositions::subtract))) }
-			, halfCarry{ static_cast<bool>(val & (1 << toUType(FlagRegisterPositions::halfCarry))) }
-			, carry{ static_cast<bool>(val & (1 << toUType(FlagRegisterPositions::carry))) }
-		{
-		}
-
-		bool zero{};
-		bool subtract{};
-		bool halfCarry{};
-		bool carry{};
-
-		operator uint8_t() const {
-			uint8_t val{};
-
-			if (zero) { val |= 1 << toUType(FlagRegisterPositions::zero); }
-			if (subtract) { val |= 1 << toUType(FlagRegisterPositions::subtract); };
-			if (halfCarry) { val |= 1 << toUType(FlagRegisterPositions::halfCarry); };
-			if (carry) { val |= 1 << toUType(FlagRegisterPositions::carry); };
-
-			return val;
-		}
-	};
-
 	struct Registers {
 		uint8_t a{};
 		uint8_t b{};
@@ -104,24 +42,8 @@ private:
 	bool m_halted{};
 	bool m_stepping{};
 	std::unique_ptr<Instruction> m_currInstruction{};
-
-	FlagRegister m_flagRegister{};
 	std::shared_ptr<Bus> m_pBus;
-
-	/*uint16_t getBC() const noexcept { return getVirtual(m_registers.b, m_registers.c); };
-	void setBC(uint16_t val) noexcept { setVirtual(val, m_registers.b, m_registers.c); };
-
-	uint16_t getAF() const noexcept { return getVirtual(m_registers.a, m_registers.f); };
-	void setAF(uint16_t val) noexcept { setVirtual(val, m_registers.a, m_registers.f); };
-
-	uint16_t getDE() const noexcept { return getVirtual(m_registers.d, m_registers.e); };
-	void setDE(uint16_t val) noexcept { setVirtual(val, m_registers.d, m_registers.e); };
-
-	uint16_t getHL() const noexcept { return getVirtual(m_registers.h, m_registers.l); };
-	void setHL(uint16_t val) noexcept { setVirtual(val, m_registers.h, m_registers.l); };
-
-	uint16_t getVirtual(const uint8_t& high, const uint8_t& low) const noexcept;
-	void setVirtual(uint16_t val, uint8_t& high, uint8_t& low) noexcept;*/
+	std::weak_ptr<Emulator> m_pEmu;
 };
 
 

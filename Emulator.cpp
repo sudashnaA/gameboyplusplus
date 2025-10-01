@@ -7,6 +7,7 @@ Emulator::Emulator()
 	, m_bus{ std::make_shared<Bus>(m_cart) }
 	, m_cpu{ std::make_shared<CPU>(m_bus) }
 {
+	m_cpu->connectEmulator(shared_from_this());
 }
 
 int Emulator::run(std::string path)
@@ -31,4 +32,9 @@ int Emulator::run(std::string path)
 	}
 
 	return 0;
+}
+
+void Emulator::emulatorCycles(int cpuCycles)
+{
+	(int)(cpuCycles);
 }

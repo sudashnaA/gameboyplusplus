@@ -5,10 +5,11 @@
 #include <cstdint>
 #include <memory>
 
-class Emulator {
+class Emulator : std::enable_shared_from_this<Emulator> {
 public:
 	Emulator();
 	int run(std::string path);
+	void emulatorCycles(int cpuCycles);
 
 private:
 	bool m_running{ false };
