@@ -10,6 +10,11 @@ void CPU::updateFlagRegister(bool zero, bool carry, bool halfCarry, bool subtrac
 	m_flagRegister.halfCarry = halfCarry;
 }
 
+bool CPU::cpuStep()
+{
+	return false;
+}
+
 bool CPU::isHalfCarry(uint8_t oldVal, uint8_t newVal) const noexcept
 {
 	return ((oldVal & 0xF) + (newVal & 0xF)) > 0xF;

@@ -5,7 +5,7 @@
 class CPU
 {
 public:
-
+	bool cpuStep();
 
 private:
 	enum class FlagRegisterPositions {
