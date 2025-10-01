@@ -22,10 +22,10 @@ private:
 		uint16_t globalChecksum;
 	};
 
-	std::array<char, 1024> filename;
-	uint32_t romSize;
-	uint8_t* romData;
-	RomHeader* header;
+	std::array<char, 1024> m_filename;
+	uint32_t m_romSize;
+	uint8_t* m_romData;
+	RomHeader* m_header;
 
 public:
 	bool cartLoad(std::string path);

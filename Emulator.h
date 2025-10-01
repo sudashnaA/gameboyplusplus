@@ -11,11 +11,11 @@ public:
 	int run(std::string path);
 
 private:
-	bool paused{ false };
-	bool running{ true };
-	uint64_t ticks{ 0 };
+	bool m_running{ false };
+	bool m_paused{ true };
+	uint64_t m_ticks{ 0 };
 
-	std::shared_ptr<Cart> cart;
-	std::shared_ptr<CPU> cpu;
-	Bus bus;
+	std::shared_ptr<Cart> m_cart;
+	std::shared_ptr<CPU> m_cpu;
+	Bus m_bus;
 };

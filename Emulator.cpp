@@ -3,9 +3,9 @@
 #include <iostream>
 
 Emulator::Emulator()
-	: cart{ std::make_shared<Cart>() }
-	, cpu{ std::make_shared<CPU>() }
-	, bus{ cart }
+	: m_cart{ std::make_shared<Cart>() }
+	, m_cpu{ std::make_shared<CPU>() }
+	, m_bus{ m_cart }
 {
 }
 
@@ -13,21 +13,21 @@ int Emulator::run(std::string path)
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	cart->cartLoad(path);
+	m_cart->cartLoad(path);
 
-	while (running)
+	while (m_paused)
 	{
-		if (paused) {
+		if (m_running) {
 			delay(10);
 			continue;
 		}
 
-		if (!cpu->cpuStep()) {
+		if (!m_cpu->cpuStep()) {
 			std::cout << "CPU stopped\n";
 			return -1;
 		}
 
-		++ticks;
+		++m_ticks;
 	}
 
 	return 0;
