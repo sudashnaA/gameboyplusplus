@@ -83,12 +83,20 @@ private:
 		uint8_t g{};
 		uint8_t h{};
 		uint8_t l{};
+		uint16_t pc{};
+		uint16_t sp{};
 	};
 
 	Registers m_registers{};
+	uint16_t m_fetchData{};
+	uint16_t m_memDest{};
+	uint8_t m_curOpcode{};
+	bool m_halted{};
+	bool m_stepping{};
+
 	FlagRegister m_flagRegister{};
 
-	uint16_t getBC() const noexcept { return getVirtual(m_registers.b, m_registers.c); };
+	/*uint16_t getBC() const noexcept { return getVirtual(m_registers.b, m_registers.c); };
 	void setBC(uint16_t val) noexcept { setVirtual(val, m_registers.b, m_registers.c); };
 
 	uint16_t getAF() const noexcept { return getVirtual(m_registers.a, m_registers.f); };
@@ -101,7 +109,7 @@ private:
 	void setHL(uint16_t val) noexcept { setVirtual(val, m_registers.h, m_registers.l); };
 
 	uint16_t getVirtual(const uint8_t& high, const uint8_t& low) const noexcept;
-	void setVirtual(uint16_t val, uint8_t& high, uint8_t& low) noexcept;
+	void setVirtual(uint16_t val, uint8_t& high, uint8_t& low) noexcept;*/
 };
 
 

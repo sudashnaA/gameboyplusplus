@@ -11,6 +11,8 @@ uint8_t Cart::cartRead(uint16_t address)
 
 void Cart::cartWrite(uint16_t address, uint8_t value)
 {
+	(uint8_t)(value);
+	(uint16_t)(address);
 	return;
 }
 
