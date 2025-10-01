@@ -24,5 +24,9 @@ constexpr auto instructions = getInstructions();
 
 std::unique_ptr<Instruction> instructionByOpcode(uint8_t opcode)
 {
+	if (instructions[opcode].type == InstructionType::IN_NONE) {
+		return nullptr;
+	}
+
 	return std::make_unique<Instruction>(instructions[opcode]);
 }

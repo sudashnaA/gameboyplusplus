@@ -97,9 +97,10 @@ private:
 	};
 
 	Registers m_registers{};
-	uint16_t m_fetchData{};
+	uint16_t m_fetchedData{};
 	uint16_t m_memDest{};
 	uint8_t m_curOpcode{};
+	bool m_destIsMem{};
 	bool m_halted{};
 	bool m_stepping{};
 	std::unique_ptr<Instruction> m_currInstruction{};
