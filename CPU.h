@@ -10,9 +10,8 @@ class Emulator;
 class CPU
 {
 public:
-	CPU(std::shared_ptr<Bus> b);
-
 	void connectEmulator(std::shared_ptr<Emulator> e);
+	void connectBus(std::shared_ptr<Bus> b);
 
 	bool cpuStep();
 	void fetchInstruction();
@@ -42,10 +41,12 @@ private:
 	bool m_halted{};
 	bool m_stepping{};
 	std::unique_ptr<Instruction> m_currInstruction{};
-	std::shared_ptr<Bus> m_pBus;
+	std::weak_ptr<Bus> m_pBus;
 	std::weak_ptr<Emulator> m_pEmu;
 
 	void emulatorCycles(int cpuCycles);
+	uint8_t busRead(uint16_t address);
+	void busWrite(uint16_t address, uint8_t value);
 };
 
 

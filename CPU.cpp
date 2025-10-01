@@ -3,13 +3,14 @@
 #include "util.h"
 #include "Emulator.h"
 
-CPU::CPU(std::shared_ptr<Bus> b)
-	: m_pBus{b}
-{}
-
 void CPU::connectEmulator(std::shared_ptr<Emulator> e)
 {
 	m_pEmu = e;
+}
+
+void CPU::connectBus(std::shared_ptr<Bus> b)
+{
+	m_pBus = b;
 }
 
 bool CPU::cpuStep()
@@ -25,7 +26,7 @@ bool CPU::cpuStep()
 
 void CPU::fetchInstruction()
 {
-	m_curOpcode = m_pBus->busRead(m_registers.pc++);
+	m_curOpcode = busRead(m_registers.pc++);
 	m_currInstruction = instructionByOpcode(m_curOpcode);
 }
 
@@ -43,14 +44,14 @@ void CPU::fetchData()
 		//m_fetchedData = m_cpuReadRegister(m_currInstruction->reg1);
 		return;
 	case AM_R_D8:
-		m_fetchedData = m_pBus->busRead(m_registers.pc);
+		m_fetchedData = busRead(m_registers.pc);
 		++m_registers.pc;
 		return;
 	case AM_D16: {
-		auto low = m_pBus->busRead(m_registers.pc);
+		auto low = busRead(m_registers.pc);
 		emulatorCycles(1);
 
-		auto high = m_pBus->busRead(m_registers.pc + 1u);
+		auto high = busRead(m_registers.pc + 1u);
 		emulatorCycles(1);
 
 		m_fetchedData = static_cast<uint16_t>(low | (high << 8));
@@ -67,9 +68,28 @@ void CPU::execute()
 {
 }
 
+uint8_t CPU::busRead(uint16_t address)
+{
+	auto ptr{ m_pBus.lock() };
+	if (ptr) {
+		return ptr->busRead(address);
+	}
+
+	return 0x00;
+}
+
+void CPU::busWrite(uint16_t address, uint8_t value)
+{
+	auto ptr{ m_pBus.lock() };
+	if (ptr) {
+		ptr->busWrite(address, value);
+		return;
+	}
+}
+
 void CPU::emulatorCycles(int cpuCycles)
 {
-	std::shared_ptr<Emulator> ptr{ m_pEmu.lock() };
+	auto ptr{ m_pEmu.lock() };
 	if (ptr) {
 		ptr->emulatorCycles(cpuCycles);
 		return;
