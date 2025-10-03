@@ -1,4 +1,5 @@
 #include <tuple>
+#include <iostream>
 #include "CPU.h"
 #include "util.h"
 #include "Emulator.h"
@@ -28,6 +29,12 @@ void CPU::fetchInstruction()
 {
 	m_curOpcode = busRead(m_registers.pc++);
 	m_currInstruction = instructionByOpcode(m_curOpcode);
+
+	if (m_currInstruction == nullptr)
+	{
+		std::cout << "Unknown instruction\n";
+		exit(-7);
+	}
 }
 
 void CPU::fetchData()
