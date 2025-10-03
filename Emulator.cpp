@@ -4,14 +4,15 @@
 
 Emulator::Emulator()
 	: m_cart{ std::make_shared<Cart>() }
-	, m_bus{ std::make_shared<Bus>(m_cart) }
+	, m_bus{ std::make_shared<Bus>() }
 	, m_cpu{ std::make_shared<CPU>() }
 {
-	m_cpu->connectBus(m_bus);
 }
 
 void Emulator::init()
 {
+	m_bus->connectCart(m_cart);
+	m_cpu->connectBus(m_bus);
 	m_cpu->connectEmulator(shared_from_this());
 }
 

@@ -14,8 +14,7 @@
 // 0xFF00 - 0xFF7F : I/O Registers
 // 0xFF80 - 0xFFFE : Zero Page
 
-Bus::Bus(std::shared_ptr<Cart> c)
-	: m_pCart{c}
+Bus::Bus()
 {
 }
 
@@ -32,4 +31,9 @@ void Bus::busWrite(uint16_t address, uint8_t value)
 	if (address < 0x8000) {
 		m_pCart->cartWrite(address, value);
 	}
+}
+
+void Bus::connectCart(std::shared_ptr<Cart> c)
+{
+	m_pCart = c;
 }
