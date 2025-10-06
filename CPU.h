@@ -5,11 +5,16 @@
 #include "Bus.h"
 #include "Instruction.h"
 
+#define CPU_FLAG_Z BIT(m_registers.f, 7)
+#define CPU_FLAG_C BIT(m_registers.f, 4)
+
 class Emulator;
 
 class CPU
 {
 public:
+	CPU();
+
 	void connectEmulator(std::shared_ptr<Emulator> e);
 	void connectBus(std::shared_ptr<Bus> b);
 
@@ -49,6 +54,11 @@ private:
 	void emulatorCycles(int cpuCycles);
 	uint8_t busRead(uint16_t address);
 	void busWrite(uint16_t address, uint8_t value);
+
+	bool checkCondition() const;
+
+	// instructions
+	void jp();
 };
 
 
