@@ -158,12 +158,20 @@ void CPU::emulatorCycles(int cpuCycles)
 	}
 }
 
-void CPU::jp()
+void CPU::JP()
 {
 	if (checkCondition()) {
 		m_registers.pc = m_fetchedData;
 		emulatorCycles(1);
 	}
+}
+
+void CPU::XOR() 
+{
+	// Set A to the bitwise XOR between the value in fetchedData and A. One byte
+	m_registers.a ^= m_fetchedData & 0xFF;
+	// Z flag is set if result is 0
+	setFlags(m_registers.a == 0, 0, 0, 0);
 }
 
 bool CPU::checkCondition() const
@@ -184,4 +192,20 @@ bool CPU::checkCondition() const
 	}
 
 	return false;
+}
+
+void CPU::setFlags(char z, char n, char h, char c)
+{
+	if (z != -1) {
+		BIT_SET(m_registers.f, 7, z);
+	}
+	if (n != -1) {
+		BIT_SET(m_registers.f, 6, n);
+	}
+	if (h != -1) {
+		BIT_SET(m_registers.f, 5, h);
+	}
+	if (c != -1) {
+		BIT_SET(m_registers.f, 4, c);
+	}
 }

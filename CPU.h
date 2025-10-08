@@ -58,16 +58,18 @@ private:
 	void busWrite(uint16_t address, uint8_t value);
 
 	bool checkCondition() const;
+	void setFlags(char z, char n, char h, char c);
 
 	// instructions
-	void jp();
+	void JP();
+	void XOR();
 
 	using FuncPtr = void (CPU::*)();
 
 	// Map InstructionType to the function for that instruction
 	std::map<InstructionType, FuncPtr> m_processors
 	{
-		{IN_JP, &CPU::jp},
+		{IN_JP, &CPU::JP},
 	};
 };
 
