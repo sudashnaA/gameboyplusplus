@@ -24,10 +24,15 @@ bool CPU::cpuStep()
 {
 	if (!m_halted) 
 	{
-		//auto pc = m_registers.pc;
+		auto pc = m_registers.pc;
 
 		fetchInstruction();
 		fetchData();
+
+		if (m_currInstruction == nullptr) {
+			std::cout << "Unknown instruction!";
+			exit(-7);
+		}
 
 		execute();
 	}
@@ -94,6 +99,7 @@ void CPU::execute()
 	(this->*proc->second)();
 }
 
+// helper functions
 uint8_t CPU::busRead(uint16_t address)
 {
 	auto ptr{ m_pBus.lock() };
@@ -113,26 +119,7 @@ void CPU::busWrite(uint16_t address, uint8_t value)
 	}
 }
 
-bool CPU::checkCondition() const
-{
-	bool z = CPU_FLAG_Z;
-	bool c = CPU_FLAG_C;
-
-	using enum ConditionType;
-
-	// Based on the condition of the current instruction, return
-	// if it is true
-	switch (m_currInstruction->cond) {
-	case CT_NONE: return true;
-	case CT_C: return c;
-	case CT_NC: return !c;
-	case CT_Z: return z;
-	case CT_NZ:	 return !z;
-	}
-
-	return false;
-}
-
+// util
 uint16_t CPU::reverse(uint16_t val) const noexcept
 {
 	return static_cast<uint16_t>(((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8));
@@ -173,5 +160,28 @@ void CPU::emulatorCycles(int cpuCycles)
 
 void CPU::jp()
 {
+	if (checkCondition()) {
+		m_registers.pc = m_fetchedData;
+		emulatorCycles(1);
+	}
+}
 
+bool CPU::checkCondition() const
+{
+	bool z = CPU_FLAG_Z;
+	bool c = CPU_FLAG_C;
+
+	using enum ConditionType;
+
+	// Based on the condition of the current instruction, return
+	// if it is true
+	switch (m_currInstruction->cond) {
+	case CT_NONE: return true;
+	case CT_C: return c;
+	case CT_NC: return !c;
+	case CT_Z: return z;
+	case CT_NZ:	 return !z;
+	}
+
+	return false;
 }
