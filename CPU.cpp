@@ -174,6 +174,25 @@ void CPU::XOR()
 	setFlags(m_registers.a == 0, 0, 0, 0);
 }
 
+void CPU::LD()
+{
+}
+
+void CPU::NOP()
+{
+}
+
+void CPU::NONE()
+{
+	std::cout << "INVALID INSTRUCTION!\n";
+	exit(-7);
+}
+
+void CPU::DI()
+{
+	m_intMasterEnabled = false;
+}
+
 bool CPU::checkCondition() const
 {
 	bool z = CPU_FLAG_Z;

@@ -46,6 +46,7 @@ private:
 	bool m_destIsMem{};
 	bool m_halted{};
 	bool m_stepping{};
+	bool m_intMasterEnabled{ false };
 	std::unique_ptr<Instruction> m_currInstruction{};
 	std::weak_ptr<Bus> m_pBus;
 	std::weak_ptr<Emulator> m_pEmu;
@@ -63,6 +64,10 @@ private:
 	// instructions
 	void JP();
 	void XOR();
+	void NOP();
+	void NONE();
+	void DI();
+	void LD();
 
 	using FuncPtr = void (CPU::*)();
 
@@ -71,6 +76,10 @@ private:
 	{
 		{IN_JP, &CPU::JP},
 		{IN_XOR, &CPU::XOR},
+		{IN_NOP, &CPU::NOP},
+		{IN_NONE, &CPU::NONE},
+		{IN_DI, &CPU::DI},
+		{IN_LD, &CPU::LD},
 	};
 };
 
