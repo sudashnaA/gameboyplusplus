@@ -44,7 +44,7 @@ enum class RegisterType {
     RT_PC
 };
 
-enum class InstructionType {
+enum InstructionType {
     IN_NONE,
     IN_NOP,
     IN_LD,

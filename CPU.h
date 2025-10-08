@@ -1,9 +1,11 @@
 #pragma once
 #include <cstdint>
 #include <memory>
+#include <map>
 #include "util.h"
 #include "Bus.h"
 #include "Instruction.h"
+#include "functional"
 
 #define CPU_FLAG_Z BIT(m_registers.f, 7)
 #define CPU_FLAG_C BIT(m_registers.f, 4)
@@ -59,6 +61,14 @@ private:
 
 	// instructions
 	void jp();
+
+	using FuncPtr = void (CPU::*)();
+
+	// Map InstructionType to the function for that instruction
+	std::map<InstructionType, FuncPtr> m_processors
+	{
+		{IN_JP, &CPU::jp},
+	};
 };
 
 

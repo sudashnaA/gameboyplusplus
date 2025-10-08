@@ -84,6 +84,14 @@ void CPU::fetchData()
 
 void CPU::execute()
 {
+	auto proc = m_processors.find(m_currInstruction->type);
+
+	if (proc == m_processors.end()) {
+		return;
+	}
+
+	// call function
+	(this->*proc->second)();
 }
 
 uint8_t CPU::busRead(uint16_t address)
