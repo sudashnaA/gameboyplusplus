@@ -1,6 +1,4 @@
 #include "Instruction.h"
-#include <array>
-
 
 constexpr auto getInstructions()
 {
@@ -20,7 +18,7 @@ constexpr auto getInstructions()
 	return instructions;
 }
 
-constexpr auto instructions = getInstructions();
+constexpr auto instructions{ getInstructions() };
 
 std::unique_ptr<Instruction> instructionByOpcode(uint8_t opcode)
 {

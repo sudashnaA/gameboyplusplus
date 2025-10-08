@@ -22,16 +22,20 @@ int Emulator::run(std::string path)
 
 	m_cart->cartLoad(path);
 
-	while (m_paused)
+	m_running = true;
+	m_paused = false;
+	m_ticks = 0;
+
+	while (m_running)
 	{
-		if (m_running) {
+		if (m_paused) {
 			delay(10);
 			continue;
 		}
 
 		if (!m_cpu->cpuStep()) {
 			std::cout << "CPU stopped\n";
-			return -1;
+			return -3;
 		}
 
 		++m_ticks;

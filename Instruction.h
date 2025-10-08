@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <memory>
+#include <array>
 
 enum class AddressMode {
     AM_IMP,
@@ -114,3 +115,54 @@ struct Instruction
 };
 
 std::unique_ptr<Instruction> instructionByOpcode(uint8_t opcode);
+
+constexpr std::array<const char*, 48> instructionLookup{
+    "<NONE>",
+    "NOP",
+    "LD",
+    "INC",
+    "DEC",
+    "RLCA",
+    "ADD",
+    "RRCA",
+    "STOP",
+    "RLA",
+    "JR",
+    "RRA",
+    "DAA",
+    "CPL",
+    "SCF",
+    "CCF",
+    "HALT",
+    "ADC",
+    "SUB",
+    "SBC",
+    "AND",
+    "XOR",
+    "OR",
+    "CP",
+    "POP",
+    "JP",
+    "PUSH",
+    "RET",
+    "CB",
+    "CALL",
+    "RETI",
+    "LDH",
+    "JPHL",
+    "DI",
+    "EI",
+    "RST",
+    "IN_ERR",
+    "IN_RLC",
+    "IN_RRC",
+    "IN_RL",
+    "IN_RR",
+    "IN_SLA",
+    "IN_SRA",
+    "IN_SWAP",
+    "IN_SRL",
+    "IN_BIT",
+    "IN_RES",
+    "IN_SET"
+};

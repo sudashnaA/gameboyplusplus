@@ -30,9 +30,14 @@ bool CPU::cpuStep()
 		fetchData();
 
 		if (m_currInstruction == nullptr) {
-			std::cout << "Unknown instruction!";
+			std::cout << "Unknown instruction! " << m_curOpcode << "\n";
 			exit(-7);
 		}
+
+		printf("%04X: %-7s (%02X %02X %02X) A: %02X B: %02X C: %02X\n",
+			pc, instructionLookup[m_currInstruction->type], m_curOpcode, 
+			0 /*(busRead(pc + 1u))*/, 0 /*(busRead(pc + 2u))*/,
+			m_registers.a, m_registers.b, m_registers.c);
 
 		execute();
 	}
@@ -53,7 +58,6 @@ void CPU::fetchData()
 
 	if (m_currInstruction == nullptr)
 	{
-		std::cout << "Unknown instruction\n";
 		return;
 	}
 
@@ -82,6 +86,7 @@ void CPU::fetchData()
 		return;
 	};
 	default:
+		printf("Unknown Addressing Mode! %d (%02X)\n",m_currInstruction->mode, m_curOpcode);
 		exit(-7);
 		return;
 	}
