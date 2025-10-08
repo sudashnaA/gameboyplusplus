@@ -70,6 +70,7 @@ private:
 	std::map<InstructionType, FuncPtr> m_processors
 	{
 		{IN_JP, &CPU::JP},
+		{IN_XOR, &CPU::XOR},
 	};
 };
 
