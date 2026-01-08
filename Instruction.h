@@ -3,6 +3,8 @@
 #include <memory>
 #include <array>
 
+constexpr int INSTRUCTION_LOOKUP_SIZE{ 48 };
+
 enum class AddressMode {
     AM_IMP,
     AM_R_D16,
@@ -116,7 +118,7 @@ struct Instruction
 
 std::unique_ptr<Instruction> instructionByOpcode(uint8_t opcode);
 
-constexpr std::array<const char*, 48> instructionLookup{
+constexpr std::array<const char*, INSTRUCTION_LOOKUP_SIZE> instructionLookup{
     "<NONE>",
     "NOP",
     "LD",
@@ -166,3 +168,12 @@ constexpr std::array<const char*, 48> instructionLookup{
     "IN_RES",
     "IN_SET"
 };
+
+constexpr const char* instructionName(InstructionType type)
+{
+    if (type < 0 || type > INSTRUCTION_LOOKUP_SIZE) {
+        return "";
+    }
+
+    return instructionLookup[type];
+}

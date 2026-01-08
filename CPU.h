@@ -83,6 +83,8 @@ private:
 	};
 
 	// 
+
+	FuncPtr getProcessor(InstructionType type);
 };
 
 

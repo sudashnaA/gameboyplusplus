@@ -29,15 +29,17 @@ bool CPU::cpuStep()
 		fetchInstruction();
 		fetchData();
 
-		if (m_currInstruction == nullptr) {
-			std::cout << "Unknown instruction! " << m_curOpcode << "\n";
-			exit(-7);
-		}
+		//printf("Executing Instruction: %02X   PC: %04X\n", m_curOpcode, pc);
 
 		printf("%04X: %-7s (%02X %02X %02X) A: %02X B: %02X C: %02X\n",
-			pc, instructionLookup[m_currInstruction->type], m_curOpcode, 
-			0 /*(busRead(pc + 1u))*/, 0 /*(busRead(pc + 2u))*/,
+			pc, instructionName(m_currInstruction->type), m_curOpcode,
+			busRead(pc + 1u), (busRead(pc + 2u)),
 			m_registers.a, m_registers.b, m_registers.c);
+
+		if (m_currInstruction == nullptr) {
+			printf("Unknown Instruction! %02X\n", m_curOpcode);
+			exit(-7);
+		}
 
 		execute();
 	}
@@ -86,7 +88,7 @@ void CPU::fetchData()
 		return;
 	};
 	default:
-		printf("Unknown Addressing Mode! %d (%02X)\n",m_currInstruction->mode, m_curOpcode);
+		printf("Unknown Addressing Mode! %d (%02X)\n", m_currInstruction->mode, m_curOpcode);
 		exit(-7);
 		return;
 	}
@@ -181,6 +183,13 @@ void CPU::XOR()
 
 void CPU::LD()
 {
+}
+
+using FuncPtr = void (CPU::*)();
+
+FuncPtr CPU::getProcessor(InstructionType type)
+{
+	return m_processors[type];
 }
 
 void CPU::NOP()
