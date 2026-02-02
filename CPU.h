@@ -56,8 +56,12 @@ private:
 	void setRegister(RegisterType type, uint16_t val) noexcept;
 
 	void emulatorCycles(int cpuCycles);
+
+	// bus helper functions
 	uint8_t busRead(uint16_t address);
+	uint16_t busRead16(uint16_t address);
 	void busWrite(uint16_t address, uint8_t value);
+	void busWrite16(uint16_t address, uint16_t value);
 
 	bool checkCondition() const;
 	void setFlags(char z, char n, char h, char c);

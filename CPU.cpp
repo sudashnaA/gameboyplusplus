@@ -244,26 +244,6 @@ void CPU::execute()
 	(this->*proc->second)();
 }
 
-// helper functions
-uint8_t CPU::busRead(uint16_t address)
-{
-	auto ptr{ m_pBus.lock() };
-	if (ptr) {
-		return ptr->busRead(address);
-	}
-
-	return 0x00;
-}
-
-void CPU::busWrite(uint16_t address, uint8_t value)
-{
-	auto ptr{ m_pBus.lock() };
-	if (ptr) {
-		ptr->busWrite(address, value);
-		return;
-	}
-}
-
 // util
 uint16_t CPU::reverse(uint16_t val) const noexcept
 {
@@ -375,6 +355,28 @@ void CPU::XOR()
 
 void CPU::LD()
 {
+	if (m_destIsMem) {
+		if (m_currInstruction->reg2 >= RegisterType::RT_AF) {
+			// 16 bit register
+			emulatorCycles(1);
+			busWrite16(m_memDest, m_fetchedData);
+		} else {
+			busWrite(m_memDest, static_cast<uint8_t>(m_fetchedData));
+		}
+
+		return;
+	}
+
+	if (m_currInstruction->mode == AddressMode::AM_HL_SPR) {
+		uint8_t hflag{ (readRegister(m_currInstruction->reg2) & 0xF) + (m_fetchedData & 0xF) >= 0x10 };
+		uint8_t cflag{ (readRegister(m_currInstruction->reg2) & 0xFF) + (m_fetchedData & 0xFF) >= 0x100 };
+
+		setFlags(0, 0, static_cast<char>(hflag), static_cast<char>(cflag));
+		setRegister(m_currInstruction->reg1, static_cast<uint16_t>(readRegister(m_currInstruction->reg2) + static_cast<char>(m_fetchedData)));
+		return;
+	}
+
+	setRegister(m_currInstruction->reg1, m_fetchedData);
 }
 
 using FuncPtr = void (CPU::*)();
@@ -432,5 +434,43 @@ void CPU::setFlags(char z, char n, char h, char c)
 	}
 	if (c != -1) {
 		BIT_SET(m_registers.f, 4, c);
+	}
+}
+
+// helper functions
+uint8_t CPU::busRead(uint16_t address)
+{
+	auto ptr{ m_pBus.lock() };
+	if (ptr) {
+		return ptr->busRead(address);
+	}
+
+	return 0x00;
+}
+
+uint16_t CPU::busRead16(uint16_t address)
+{
+	auto ptr{ m_pBus.lock() };
+	if (ptr) {
+		return ptr->busRead16(address);
+	}
+
+	return 0x00;
+}
+
+void CPU::busWrite(uint16_t address, uint8_t value)
+{
+	auto ptr{ m_pBus.lock() };
+	if (ptr) {
+		ptr->busWrite(address, value);
+		return;
+	}
+}
+void CPU::busWrite16(uint16_t address, uint16_t value)
+{
+	auto ptr{ m_pBus.lock() };
+	if (ptr) {
+		ptr->busWrite16(address, value);
+		return;
 	}
 }

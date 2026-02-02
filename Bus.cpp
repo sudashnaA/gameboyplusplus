@@ -26,11 +26,25 @@ uint8_t Bus::busRead(uint16_t address)
 	return 0;
 }
 
+uint16_t Bus::busRead16(uint16_t address)
+{
+	auto low{ static_cast<uint16_t>(busRead(address)) };
+	auto high{ static_cast<uint16_t>(busRead(static_cast<uint16_t>(address + 1))) };
+
+	return static_cast<uint16_t>(low | (high << 8));
+}
+
 void Bus::busWrite(uint16_t address, uint8_t value)
 {
 	if (address < 0x8000) {
 		m_pCart->cartWrite(address, value);
 	}
+}
+
+void Bus::busWrite16(uint16_t address, uint16_t value)
+{
+	busWrite(static_cast<uint16_t>(address + 1), static_cast<uint8_t>((value >> 8) & 0xFF));
+	busWrite(address, static_cast<uint8_t>(value & 0xFF));
 }
 
 void Bus::connectCart(std::shared_ptr<Cart> c)
