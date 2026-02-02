@@ -4,6 +4,9 @@
 #include "util.h"
 #include "Emulator.h"
 
+// constants
+constexpr int RT_C_OR_VALUE{ 0xFF00 };
+
 CPU::CPU()
 {
 	m_registers.pc = 0x100;
@@ -71,26 +74,161 @@ void CPU::fetchData()
 	case AM_R:
 		m_fetchedData = readRegister(m_currInstruction->reg1);
 		return;
+	case AM_R_R:
+		m_fetchedData = readRegister(m_currInstruction->reg2);
+		return;
 	case AM_R_D8:
 		m_fetchedData = busRead(m_registers.pc);
 		emulatorCycles(1);
 		++m_registers.pc;
 		return;
+
+	case AM_R_D16:
 	case AM_D16: {
-		auto low = busRead(m_registers.pc);
+		auto low{ busRead(m_registers.pc) };
 		emulatorCycles(1);
 
-		auto high = busRead(m_registers.pc + 1u);
+		auto high{ busRead(m_registers.pc + 1u) };
 		emulatorCycles(1);
 
 		m_fetchedData = static_cast<uint16_t>(low | (high << 8));
 		m_registers.pc += 2;
 		return;
 	};
-	default:
+
+	case AM_MR_R: {
+		m_fetchedData = readRegister(m_currInstruction->reg2);
+		m_memDest = readRegister(m_currInstruction->reg1);
+		m_destIsMem = true;
+		
+		if (m_currInstruction->reg1 == RegisterType::RT_C) {
+			m_memDest |= RT_C_OR_VALUE;
+		}
+		return;
+	}
+
+	case AM_R_MR: {
+		auto addr{ readRegister(m_currInstruction->reg2) };
+		
+		if (m_currInstruction->reg1 == RegisterType::RT_C) {
+			addr |= RT_C_OR_VALUE;
+		}
+
+		m_fetchedData = busRead(addr);
+		emulatorCycles(1);
+		return;
+	}
+
+	case AM_R_HLI: {
+		m_fetchedData = busRead(readRegister(m_currInstruction->reg2));
+		emulatorCycles(1);
+		setRegister(RegisterType::RT_HL, static_cast<uint16_t>(readRegister(RegisterType::RT_HL) + 1));
+		return;
+	}
+
+	case AM_R_HLD: {
+		m_fetchedData = busRead(readRegister(m_currInstruction->reg2));
+		emulatorCycles(1);
+		setRegister(RegisterType::RT_HL, static_cast<uint16_t>(readRegister(RegisterType::RT_HL) - 1));
+		return;
+	}
+
+	case AM_HLI_R: {
+		m_fetchedData = readRegister(m_currInstruction->reg2);
+		m_memDest = readRegister(m_currInstruction->reg1);
+		m_destIsMem = true;
+		setRegister(RegisterType::RT_HL, static_cast<uint16_t>(readRegister(RegisterType::RT_HL) + 1));
+		return;
+	}
+
+	case AM_HLD_R: {
+		m_fetchedData = readRegister(m_currInstruction->reg2);
+		m_memDest = readRegister(m_currInstruction->reg1);
+		m_destIsMem = true;
+		setRegister(RegisterType::RT_HL, static_cast<uint16_t>(readRegister(RegisterType::RT_HL) - 1));
+		return;
+	}
+
+	case AM_R_A8: {
+		m_fetchedData = busRead(m_registers.pc);
+		emulatorCycles(1);
+		++m_registers.pc;
+		return;
+	}
+
+	case AM_A8_R: {
+		m_fetchedData = static_cast<uint16_t>(busRead(m_registers.pc) | RT_C_OR_VALUE);
+		m_destIsMem = true;
+		emulatorCycles(1);
+		++m_registers.pc;
+		return;
+	}
+
+	case AM_HL_SPR: {
+		m_fetchedData = busRead(m_registers.pc);
+		emulatorCycles(1);
+		++m_registers.pc;
+		return;
+	}
+
+	case AM_D8: {
+		m_fetchedData = busRead(m_registers.pc);
+		emulatorCycles(1);
+		++m_registers.pc;
+		return;
+	}
+
+	case AM_A16_R:
+	case AM_D16_R: {
+		auto low{ static_cast<uint16_t>(busRead(m_registers.pc)) };
+		emulatorCycles(1);
+		auto high{ static_cast<uint16_t>(busRead(m_registers.pc) + 1) };
+		emulatorCycles(1);
+
+		m_memDest = static_cast<uint16_t>(low | (high << 8));
+		m_destIsMem = true;
+
+		m_registers.pc += 2;
+		m_fetchedData = readRegister(m_currInstruction->reg2);
+		return;
+	}
+
+	case AM_MR_D8: {
+		m_fetchedData = busRead(m_registers.pc);
+		emulatorCycles(1);
+		++m_registers.pc;
+		m_memDest = readRegister(m_currInstruction->reg1);
+		m_destIsMem = true;
+		return;
+	}
+
+	case AM_MR: {
+		m_memDest = readRegister(m_currInstruction->reg1);
+		m_destIsMem = true;
+		m_fetchedData = busRead(readRegister(m_currInstruction->reg1));
+		emulatorCycles(1);
+		return;
+	}
+
+	case AM_R_A16: {
+		auto low{ static_cast<uint16_t>(busRead(m_registers.pc)) };
+		emulatorCycles(1);
+		auto high{ static_cast<uint16_t>(busRead(m_registers.pc) + 1) };
+		emulatorCycles(1);
+
+		auto addr{ static_cast<uint16_t>(low | (high << 8)) };
+
+		m_registers.pc += 2;
+		m_fetchedData = busRead(addr);
+		emulatorCycles(1);
+		return;
+	}
+
+	default: {
 		printf("Unknown Addressing Mode! %d (%02X)\n", m_currInstruction->mode, m_curOpcode);
 		exit(-7);
 		return;
+	}
 	}
 }
 
@@ -155,6 +293,60 @@ uint16_t CPU::readRegister(RegisterType type) noexcept
 	default: return 0;
 	}
 }
+
+void CPU::setRegister(RegisterType type, uint16_t val) noexcept {
+	uint8_t AND_VALUE{ 0xFFu };
+
+	switch (type)
+	{
+	case RegisterType::RT_A:
+		m_registers.a = static_cast<uint8_t>(val & AND_VALUE);
+		break;
+	case RegisterType::RT_B:
+		m_registers.b = static_cast<uint8_t>(val & AND_VALUE);
+		break;
+	case RegisterType::RT_C:
+		m_registers.c = static_cast<uint8_t>(val & AND_VALUE);
+		break;
+	case RegisterType::RT_D:
+		m_registers.d = static_cast<uint8_t>(val & AND_VALUE);
+		break;
+	case RegisterType::RT_E:
+		m_registers.e = static_cast<uint8_t>(val & AND_VALUE);
+		break;
+	case RegisterType::RT_F:
+		m_registers.f = static_cast<uint8_t>(val & AND_VALUE);
+		break;
+	case RegisterType::RT_H:
+		m_registers.h = static_cast<uint8_t>(val & AND_VALUE);
+		break;
+	case RegisterType::RT_L:
+		m_registers.l = static_cast<uint8_t>(val & AND_VALUE);
+		break;
+	case RegisterType::RT_AF:
+		*(reinterpret_cast<uint16_t*>(&m_registers.a)) = reverse(val);
+		break;
+	case RegisterType::RT_BC:
+		*(reinterpret_cast<uint16_t*>(&m_registers.b)) = reverse(val);
+		break;
+	case RegisterType::RT_DE:
+		*(reinterpret_cast<uint16_t*>(&m_registers.d)) = reverse(val);
+		break;
+	case RegisterType::RT_HL:
+		*(reinterpret_cast<uint16_t*>(&m_registers.h)) = reverse(val);
+		break;
+	case RegisterType::RT_PC:
+		m_registers.pc = val;
+		break;
+	case RegisterType::RT_SP:
+		m_registers.sp = val;
+		break;
+	case RegisterType::RT_NONE:
+		break;
+	}
+}
+
+// ------------
 
 void CPU::emulatorCycles(int cpuCycles)
 {

@@ -53,6 +53,7 @@ private:
 
 	uint16_t reverse(uint16_t val) const noexcept;
 	uint16_t readRegister(RegisterType type) noexcept;
+	void setRegister(RegisterType type, uint16_t val) noexcept;
 
 	void emulatorCycles(int cpuCycles);
 	uint8_t busRead(uint16_t address);
