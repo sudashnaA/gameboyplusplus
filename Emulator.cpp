@@ -14,6 +14,7 @@ void Emulator::init()
 {
 	m_bus->connectCart(m_cart);
 	m_bus->connectRam(m_ram);
+	m_bus->connectCPU(m_cpu);
 	m_cpu->connectBus(m_bus);
 	m_cpu->connectEmulator(shared_from_this());
 }

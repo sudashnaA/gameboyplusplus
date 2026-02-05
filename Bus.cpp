@@ -1,4 +1,7 @@
 #include "Bus.h"
+#include "CPU.h"
+#include "util.h"
+
 // Memory Map
 // 0x0000 - 0x3FFF : ROM Bank 0
 // 0x4000 - 0x7FFF : ROM Bank 1 - Switchable
@@ -27,6 +30,7 @@ uint8_t Bus::busRead(uint16_t address)
 	else if (address < 0xA000) {
 		// Character map data
 		printf("UNSUPPORTED bus_read(%04X)\n", address);
+		NO_IMPL;
 	}
 	else if (address < 0xC000) {
 		// Cartridge ram
@@ -43,6 +47,7 @@ uint8_t Bus::busRead(uint16_t address)
 	else if (address < 0xFEA0) {
 		// OAM
 		printf("UNSUPPORTED bus_read(%04X)\n", address);
+		NO_IMPL
 	}
 	else if (address < 0xFF00) {
 		// reserved unusable
@@ -51,10 +56,11 @@ uint8_t Bus::busRead(uint16_t address)
 	else if (address < 0xFF80) {
 		// io registers
 		printf("UNSUPPORTED bus_read(%04X)\n", address);
+		NO_IMPL
 	}
 	else if (address == 0xFFFF) {
 		// CPU enable register
-		printf("UNSUPPORTED bus_read(%04X)\n", address);
+		return m_pCpu->getIeRegister();
 	}
 
 	//0xFF80 - 0xFFFE : Zero Page
@@ -76,6 +82,7 @@ void Bus::busWrite(uint16_t address, uint8_t value)
 	} else if (address < 0xA000) {
 		//Char/Map Data
 		printf("UNSUPPORTED bus_write(%04X)\n", address);
+		NO_IMPL
 	} else if (address < 0xC000) {
 		//EXT-RAM
 		m_pCart->cartWrite(address, value);
@@ -87,6 +94,7 @@ void Bus::busWrite(uint16_t address, uint8_t value)
 	} else if (address < 0xFEA0) {
 		//OAM
 		printf("UNSUPPORTED bus_write(%04X)\n", address);
+		NO_IMPL
 	} else if (address < 0xFF00) {
 		//unusable reserved
 	} else if (address < 0xFF80) {
@@ -94,7 +102,7 @@ void Bus::busWrite(uint16_t address, uint8_t value)
 		printf("UNSUPPORTED bus_write(%04X)\n", address);
 	} else if (address == 0xFFFF) {
 		//CPU SET ENABLE REGISTER
-		//cpuSetIeRegister(value);
+		m_pCpu->setIeRegister(value);
 	} else {
 		m_pRam->hramWrite(address, value);
 	}
@@ -113,5 +121,10 @@ void Bus::connectCart(std::shared_ptr<Cart> c)
 void Bus::connectRam(std::shared_ptr<Ram> r)
 {
 	m_pRam = r;
+}
+
+void Bus::connectCPU(std::shared_ptr<CPU> c)
+{
+	m_pCpu = c;
 }
 

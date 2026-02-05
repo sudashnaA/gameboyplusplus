@@ -25,6 +25,9 @@ public:
 	void fetchData();
 	void execute();
 
+	uint8_t getIeRegister() const noexcept;
+	void setIeRegister(uint8_t val) noexcept;
+
 private:
 	struct Registers {
 		uint8_t a{};
@@ -47,6 +50,7 @@ private:
 	bool m_halted{};
 	bool m_stepping{};
 	bool m_intMasterEnabled{ false };
+	uint8_t m_ieRegister{};
 	std::unique_ptr<Instruction> m_currInstruction{};
 	std::weak_ptr<Bus> m_pBus;
 	std::weak_ptr<Emulator> m_pEmu;
@@ -73,18 +77,20 @@ private:
 	void NONE();
 	void DI();
 	void LD();
+	void LDH();
 
 	using FuncPtr = void (CPU::*)();
 
 	// Map InstructionType to the function for that instruction
 	std::map<InstructionType, FuncPtr> m_processors
 	{
-		{IN_JP, &CPU::JP},
-		{IN_XOR, &CPU::XOR},
 		{IN_NOP, &CPU::NOP},
 		{IN_NONE, &CPU::NONE},
-		{IN_DI, &CPU::DI},
 		{IN_LD, &CPU::LD},
+		{IN_LDH, &CPU::LDH},
+		{IN_JP, &CPU::JP},
+		{IN_DI, &CPU::DI},
+		{IN_XOR, &CPU::XOR},
 	};
 
 	// 

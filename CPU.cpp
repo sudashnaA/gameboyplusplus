@@ -34,10 +34,12 @@ bool CPU::cpuStep()
 
 		//printf("Executing Instruction: %02X   PC: %04X\n", m_curOpcode, pc);
 
-		printf("%04X: %-7s (%02X %02X %02X) A: %02X B: %02X C: %02X\n",
+		printf("%04X: %-7s (%02X %02X %02X) A: %02X BC: %02X%02X DE: %02X%02X HL: %02X%02X\n",
 			pc, instructionName(m_currInstruction->type), m_curOpcode,
 			busRead(pc + 1u), (busRead(pc + 2u)),
-			m_registers.a, m_registers.b, m_registers.c);
+			m_registers.a, m_registers.b, m_registers.c,
+			m_registers.d, m_registers.e, m_registers.h, m_registers.l
+		);
 
 		if (m_currInstruction == nullptr) {
 			printf("Unknown Instruction! %02X\n", m_curOpcode);
@@ -244,6 +246,16 @@ void CPU::execute()
 	(this->*proc->second)();
 }
 
+uint8_t CPU::getIeRegister() const noexcept
+{
+	return m_ieRegister;
+}
+
+void CPU::setIeRegister(uint8_t val) noexcept
+{
+	m_ieRegister = val;
+}
+
 // util
 uint16_t CPU::reverse(uint16_t val) const noexcept
 {
@@ -343,6 +355,18 @@ void CPU::JP()
 		m_registers.pc = m_fetchedData;
 		emulatorCycles(1);
 	}
+}
+
+void CPU::LDH()
+{
+	if (m_currInstruction->reg1 == RegisterType::RT_A) {
+		setRegister(m_currInstruction->reg1, busRead(static_cast<uint16_t>(0xFF00 | m_fetchedData)));
+	}
+	else {
+		busWrite(static_cast<uint16_t>(0xFF00 | m_fetchedData), m_registers.a);
+	}
+
+	emulatorCycles(1);
 }
 
 void CPU::XOR() 
