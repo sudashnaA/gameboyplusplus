@@ -11,6 +11,7 @@
 #define CPU_FLAG_C BIT(m_registers.f, 4)
 
 class Emulator;
+struct Registers;
 
 class CPU
 {
@@ -96,6 +97,12 @@ private:
 	// 
 
 	FuncPtr getProcessor(InstructionType type);
+
+	// stack
+	void stackPush(uint8_t data);
+	void stackPush16(uint16_t data);
+	uint8_t stackPop();
+	uint16_t stackPop16();
 };
 
 

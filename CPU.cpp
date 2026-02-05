@@ -257,6 +257,7 @@ void CPU::setIeRegister(uint8_t val) noexcept
 }
 
 // util
+
 uint16_t CPU::reverse(uint16_t val) const noexcept
 {
 	return static_cast<uint16_t>(((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8));
@@ -497,4 +498,31 @@ void CPU::busWrite16(uint16_t address, uint16_t value)
 		ptr->busWrite16(address, value);
 		return;
 	}
+}
+
+// stack
+void CPU::stackPush(uint8_t data)
+{
+	m_registers.sp--;
+
+	busWrite(m_registers.sp, data);
+}
+
+void CPU::stackPush16(uint16_t data)
+{
+	stackPush(static_cast<uint8_t>((data >> 8) & 0xFF));
+	stackPush(static_cast<uint8_t>(data & 0xFF));
+}
+
+uint8_t CPU::stackPop()
+{
+	return busRead(m_registers.sp++);
+}
+
+uint16_t CPU::stackPop16()
+{
+	uint16_t low{ stackPop() };
+	uint16_t high{ stackPop() };
+
+	return static_cast<uint16_t>((high << 8) | low);
 }
