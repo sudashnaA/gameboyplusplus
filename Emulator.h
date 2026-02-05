@@ -2,6 +2,7 @@
 #include "CPU.h"
 #include "Cart.h"
 #include "Bus.h"
+#include "Ram.h"
 #include <cstdint>
 #include <memory>
 
@@ -20,4 +21,5 @@ private:
 	std::shared_ptr<Cart> m_cart;
 	std::shared_ptr<CPU> m_cpu;
 	std::shared_ptr<Bus> m_bus;
+	std::shared_ptr <Ram> m_ram;
 };

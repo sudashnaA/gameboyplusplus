@@ -21,9 +21,44 @@ Bus::Bus()
 uint8_t Bus::busRead(uint16_t address)
 {
 	if (address < 0x8000) {
+		// ROM data
 		return m_pCart->cartRead(address);
 	}
-	return 0;
+	else if (address < 0xA000) {
+		// Character map data
+		printf("UNSUPPORTED bus_read(%04X)\n", address);
+	}
+	else if (address < 0xC000) {
+		// Cartridge ram
+		return m_pCart->cartRead(address);
+	}
+	else if (address < 0xE000) {
+		// Working ram (WRAM)
+		return m_pRam->wramRead(address);
+	}
+	else if (address < 0xFE00) {
+		// reserved ram
+		return 0;
+	}
+	else if (address < 0xFEA0) {
+		// OAM
+		printf("UNSUPPORTED bus_read(%04X)\n", address);
+	}
+	else if (address < 0xFF00) {
+		// reserved unusable
+		return 0;
+	}
+	else if (address < 0xFF80) {
+		// io registers
+		printf("UNSUPPORTED bus_read(%04X)\n", address);
+	}
+	else if (address == 0xFFFF) {
+		// CPU enable register
+		printf("UNSUPPORTED bus_read(%04X)\n", address);
+	}
+
+	//0xFF80 - 0xFFFE : Zero Page
+	return m_pRam->hramRead(address);
 }
 
 uint16_t Bus::busRead16(uint16_t address)
@@ -38,6 +73,30 @@ void Bus::busWrite(uint16_t address, uint8_t value)
 {
 	if (address < 0x8000) {
 		m_pCart->cartWrite(address, value);
+	} else if (address < 0xA000) {
+		//Char/Map Data
+		printf("UNSUPPORTED bus_write(%04X)\n", address);
+	} else if (address < 0xC000) {
+		//EXT-RAM
+		m_pCart->cartWrite(address, value);
+	} else if (address < 0xE000) {
+		//WRAM
+		m_pRam->wramWrite(address, value);
+	} else if (address < 0xFE00) {
+		//reserved echo ram
+	} else if (address < 0xFEA0) {
+		//OAM
+		printf("UNSUPPORTED bus_write(%04X)\n", address);
+	} else if (address < 0xFF00) {
+		//unusable reserved
+	} else if (address < 0xFF80) {
+		//IO Registers...
+		printf("UNSUPPORTED bus_write(%04X)\n", address);
+	} else if (address == 0xFFFF) {
+		//CPU SET ENABLE REGISTER
+		//cpuSetIeRegister(value);
+	} else {
+		m_pRam->hramWrite(address, value);
 	}
 }
 
@@ -51,3 +110,8 @@ void Bus::connectCart(std::shared_ptr<Cart> c)
 {
 	m_pCart = c;
 }
+void Bus::connectRam(std::shared_ptr<Ram> r)
+{
+	m_pRam = r;
+}
+

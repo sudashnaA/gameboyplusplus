@@ -2,11 +2,13 @@
 #include <cstdint>
 #include <memory>
 #include "Cart.h"
+#include "Ram.h"
 
 class Bus {
 public:
 	Bus();
 	void connectCart(std::shared_ptr<Cart> c);
+	void connectRam(std::shared_ptr<Ram> c);
 
 	uint8_t busRead(uint16_t address);
 	uint16_t busRead16(uint16_t address);
@@ -15,4 +17,5 @@ public:
 
 private:
 	std::shared_ptr<Cart> m_pCart;
+	std::shared_ptr<Ram> m_pRam;
 };
