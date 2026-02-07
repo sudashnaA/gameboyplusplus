@@ -27,6 +27,10 @@ bool CPU::cpuStep()
 {
 	if (!m_halted) 
 	{
+		/*if (curr == 100) {
+			exit(-10);
+		}*/
+
 		auto pc = m_registers.pc;
 
 		fetchInstruction();
@@ -40,13 +44,13 @@ bool CPU::cpuStep()
 			m_registers.a, m_registers.b, m_registers.c,
 			m_registers.d, m_registers.e, m_registers.h, m_registers.l
 		);
-
 		if (m_currInstruction == nullptr) {
 			printf("Unknown Instruction! %02X\n", m_curOpcode);
 			exit(-7);
 		}
 
 		execute();
+		curr++;
 	}
 
 	return true;
@@ -382,6 +386,11 @@ void CPU::CALL()
 	gotoAddr(m_fetchedData, true);
 }
 
+void CPU::RST()
+{
+	gotoAddr(m_currInstruction->param, true);
+}
+
 void CPU::RET()
 {
 	if (m_currInstruction->cond != ConditionType::CT_NONE) {
@@ -398,8 +407,6 @@ void CPU::RET()
 		m_registers.pc = n;
 		emulatorCycles(1);
 	}
-
-	gotoAddr(m_fetchedData, false);
 }
 
 void CPU::RETI()
@@ -436,13 +443,13 @@ void CPU::POP()
 
 void CPU::PUSH()
 {
-	auto high{ static_cast<uint8_t>((readRegister(m_currInstruction->reg1) >> 8) & 0xFF)};
+	auto high{ static_cast<uint16_t>((readRegister(m_currInstruction->reg1) >> 8) & 0xFF) };
 	emulatorCycles(1);
-	stackPush(high);
+	stackPush(static_cast<uint8_t>(high));
 
-	auto low{ static_cast<uint8_t>(readRegister(m_currInstruction->reg1) & 0xFF) };
+	auto low{ static_cast<uint16_t>(readRegister(m_currInstruction->reg1) & 0xFF) };
 	emulatorCycles(1);
-	stackPush(low);
+	stackPush(static_cast<uint8_t>(low));
 
 	emulatorCycles(1);
 }

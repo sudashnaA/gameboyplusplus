@@ -74,6 +74,7 @@ private:
 	// instructions
 	void JP();
 	void CALL();
+	void RST();
 	void RET();
 	void RETI();
 	void JR();
@@ -104,6 +105,7 @@ private:
 		{IN_DI, &CPU::DI},
 		{IN_JR, &CPU::JR},
 		{IN_CALL, &CPU::CALL},
+		{IN_RST, &CPU::RST},
 		{IN_RET, &CPU::RET},
 		{IN_RETI, &CPU::RETI},
 		{IN_XOR, &CPU::XOR},
@@ -118,6 +120,9 @@ private:
 	void stackPush16(uint16_t data);
 	uint8_t stackPop();
 	uint16_t stackPop16();
+
+	// debug
+	int curr{};
 };
 
 
