@@ -127,4 +127,3 @@ void Bus::connectCPU(std::shared_ptr<CPU> c)
 {
 	m_pCpu = c;
 }
-

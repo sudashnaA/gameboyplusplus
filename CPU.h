@@ -73,12 +73,19 @@ private:
 
 	// instructions
 	void JP();
+	void CALL();
+	void JR();
 	void XOR();
 	void NOP();
 	void NONE();
 	void DI();
 	void LD();
 	void LDH();
+	void POP();
+	void PUSH();
+
+	// helper function that is used in instructions
+	void gotoAddr(uint16_t addr, bool pushpc);
 
 	using FuncPtr = void (CPU::*)();
 
@@ -90,7 +97,11 @@ private:
 		{IN_LD, &CPU::LD},
 		{IN_LDH, &CPU::LDH},
 		{IN_JP, &CPU::JP},
+		{IN_POP, &CPU::POP},
+		{IN_PUSH, &CPU::PUSH},
 		{IN_DI, &CPU::DI},
+		{IN_JR, &CPU::JR},
+		{IN_CALL, &CPU::CALL},
 		{IN_XOR, &CPU::XOR},
 	};
 

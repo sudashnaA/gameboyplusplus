@@ -350,12 +350,36 @@ void CPU::emulatorCycles(int cpuCycles)
 	}
 }
 
-void CPU::JP()
+// instructions
+
+void CPU::gotoAddr(uint16_t addr, bool pushpc)
 {
 	if (checkCondition()) {
-		m_registers.pc = m_fetchedData;
+		if (pushpc) {
+			emulatorCycles(2);
+			stackPush16(m_registers.pc);
+		}
+
+		m_registers.pc = addr;
 		emulatorCycles(1);
 	}
+}
+
+void CPU::JP()
+{
+	gotoAddr(m_fetchedData, false);
+}
+
+void CPU::JR()
+{
+	auto rel{ static_cast<char>(m_fetchedData & 0xFF) };
+	auto addr{ static_cast<uint16_t>(m_registers.pc + rel) };
+	gotoAddr(addr, false);
+}
+
+void CPU::CALL()
+{
+	gotoAddr(m_fetchedData, true);
 }
 
 void CPU::LDH()
@@ -366,6 +390,33 @@ void CPU::LDH()
 	else {
 		busWrite(static_cast<uint16_t>(0xFF00 | m_fetchedData), m_registers.a);
 	}
+
+	emulatorCycles(1);
+}
+
+void CPU::POP()
+{
+	auto low{ static_cast<uint16_t>(stackPop()) };
+	emulatorCycles(1);
+	auto high{ static_cast<uint16_t>(stackPop()) };
+
+	auto n{ static_cast<uint16_t>(high << 8 | low) };
+	setRegister(m_currInstruction->reg1, n);
+
+	if (m_currInstruction->reg1 == RegisterType::RT_AF) {
+		setRegister(m_currInstruction->reg1, static_cast<uint16_t>(n & 0xFFF0));
+	}
+}
+
+void CPU::PUSH()
+{
+	auto high{ static_cast<uint8_t>((readRegister(m_currInstruction->reg1) >> 8) & 0xFF)};
+	emulatorCycles(1);
+	stackPush(high);
+
+	auto low{ static_cast<uint8_t>(readRegister(m_currInstruction->reg1) & 0xFF) };
+	emulatorCycles(1);
+	stackPush(low);
 
 	emulatorCycles(1);
 }
