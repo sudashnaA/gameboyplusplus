@@ -382,6 +382,32 @@ void CPU::CALL()
 	gotoAddr(m_fetchedData, true);
 }
 
+void CPU::RET()
+{
+	if (m_currInstruction->cond != ConditionType::CT_NONE) {
+		emulatorCycles(1);
+	}
+
+	if (checkCondition()) {
+		auto low{ static_cast<uint16_t>(stackPop()) };
+		emulatorCycles(1);
+		auto high{ static_cast<uint16_t>(stackPop()) };
+		emulatorCycles(1);
+
+		auto n{ static_cast<uint16_t>((high << 8) | low) };
+		m_registers.pc = n;
+		emulatorCycles(1);
+	}
+
+	gotoAddr(m_fetchedData, false);
+}
+
+void CPU::RETI()
+{
+	m_intMasterEnabled = true;
+	RET();
+}
+
 void CPU::LDH()
 {
 	if (m_currInstruction->reg1 == RegisterType::RT_A) {

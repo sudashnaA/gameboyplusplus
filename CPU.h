@@ -74,6 +74,8 @@ private:
 	// instructions
 	void JP();
 	void CALL();
+	void RET();
+	void RETI();
 	void JR();
 	void XOR();
 	void NOP();
@@ -102,6 +104,8 @@ private:
 		{IN_DI, &CPU::DI},
 		{IN_JR, &CPU::JR},
 		{IN_CALL, &CPU::CALL},
+		{IN_RET, &CPU::RET},
+		{IN_RETI, &CPU::RETI},
 		{IN_XOR, &CPU::XOR},
 	};
 
