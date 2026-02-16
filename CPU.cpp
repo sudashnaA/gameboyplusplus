@@ -369,6 +369,11 @@ void CPU::gotoAddr(uint16_t addr, bool pushpc)
 	}
 }
 
+constexpr bool CPU::is16Bit(RegisterType rt) const noexcept
+{
+	return rt >= RegisterType::RT_AF;
+}
+
 void CPU::JP()
 {
 	gotoAddr(m_fetchedData, false);
@@ -452,6 +457,55 @@ void CPU::PUSH()
 	stackPush(static_cast<uint8_t>(low));
 
 	emulatorCycles(1);
+}
+
+void CPU::INC()
+{
+	auto val{ static_cast<uint16_t>(readRegister(m_currInstruction->reg1) + 1) };
+
+	if (is16Bit(m_currInstruction->reg1)) {
+		emulatorCycles(1);
+	}
+
+	if (m_currInstruction->reg1 == RegisterType::RT_HL && m_currInstruction->mode == AddressMode::AM_MR) {
+		val = static_cast<uint16_t>(busRead(readRegister(RegisterType::RT_HL)) + 1);
+		val &= 0xFF;
+		busWrite(readRegister(RegisterType::RT_HL), static_cast<uint8_t>(val));
+	}
+	else {
+		setRegister(m_currInstruction->reg1, val);
+		val = readRegister(m_currInstruction->reg1);
+	}
+
+	if ((m_curOpcode & 0x03) == 0x03) {
+		return;
+	}
+
+	setFlags(val == 0, 0, (val & 0x0F) == 0, -1);
+}
+
+void CPU::DEC()
+{
+	auto val{ static_cast<uint16_t>(readRegister(m_currInstruction->reg1) - 1) };
+
+	if (is16Bit(m_currInstruction->reg1)) {
+		emulatorCycles(1);
+	}
+
+	if (m_currInstruction->reg1 == RegisterType::RT_HL && m_currInstruction->mode == AddressMode::AM_MR) {
+		val = static_cast<uint16_t>(busRead(readRegister(RegisterType::RT_HL)) - 1);
+		busWrite(readRegister(RegisterType::RT_HL), static_cast<uint8_t>(val));
+	}
+	else {
+		setRegister(m_currInstruction->reg1, val);
+		val = readRegister(m_currInstruction->reg1);
+	}
+
+	if ((m_curOpcode & 0x0B) == 0x0B) {
+		return;
+	}
+
+	setFlags(val == 0, 1, (val & 0x0F) == 0x0F, -1);
 }
 
 void CPU::XOR() 

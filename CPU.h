@@ -86,9 +86,12 @@ private:
 	void LDH();
 	void POP();
 	void PUSH();
+	void INC();
+	void DEC();
 
 	// helper function that is used in instructions
 	void gotoAddr(uint16_t addr, bool pushpc);
+	constexpr bool is16Bit(RegisterType rt) const noexcept;
 
 	using FuncPtr = void (CPU::*)();
 
@@ -108,6 +111,8 @@ private:
 		{IN_RST, &CPU::RST},
 		{IN_RET, &CPU::RET},
 		{IN_RETI, &CPU::RETI},
+		{IN_INC, &CPU::INC},
+		{IN_DEC, &CPU::DEC},
 		{IN_XOR, &CPU::XOR},
 	};
 
