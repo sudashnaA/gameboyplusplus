@@ -508,6 +508,56 @@ void CPU::DEC()
 	setFlags(val == 0, 1, (val & 0x0F) == 0x0F, -1);
 }
 
+void CPU::ADD() 
+{
+	auto val{ static_cast<uint32_t>(readRegister(m_currInstruction->reg1) + m_fetchedData) };
+
+	auto is16{ is16Bit(m_currInstruction->reg1) };
+
+	if (is16) {
+		emulatorCycles(1);
+	}
+
+	if (m_currInstruction->reg1 == RegisterType::RT_SP) {
+		val = static_cast<uint32_t>(readRegister(m_currInstruction->reg1) + static_cast<char>(m_fetchedData));
+	}
+
+	auto z{ static_cast<int>((val & 0xFF) == 0) };
+	auto h{ static_cast<int>( (readRegister(m_currInstruction->reg1) & 0xF) + (m_fetchedData & 0xF) >= 0x10 ) };
+	auto c{ static_cast<int>( static_cast<int>(readRegister(m_currInstruction->reg1) & 0xFF) + static_cast<int>(m_fetchedData & 0xFF) > 0x100 ) };
+
+	if (is16) {
+		z = -1;
+		h = static_cast<int>((readRegister(m_currInstruction->reg1) & 0xFFF) + (m_fetchedData & 0xFFF) >= 0x1000);
+		auto n{ static_cast<uint32_t>( static_cast<uint32_t>(readRegister(m_currInstruction->reg1)) + static_cast<uint32_t>(m_fetchedData) ) };
+		c = n >= 0x10000;
+	}
+
+	if (m_currInstruction->reg1 == RegisterType::RT_SP) {
+		z = 0;
+		h = static_cast<int>((readRegister(m_currInstruction->reg1) & 0xF) + (m_fetchedData & 0xF) >= 0x10);
+		c = static_cast<int>(static_cast<int>(readRegister(m_currInstruction->reg1) & 0xFF) + static_cast<int>(m_fetchedData & 0xFF) > 0x100);
+	}
+
+	setRegister(m_currInstruction->reg1, static_cast<uint16_t>(val & 0xFFFF));
+	setFlags(static_cast<char>(z), 0, static_cast<char>(h), static_cast<char>(c));
+}
+
+void CPU::ADC() 
+{
+	auto u{ static_cast<uint16_t>(m_fetchedData) };
+	auto a{ static_cast<uint16_t>(m_registers.a) };
+	auto c{ static_cast<uint16_t>(CPU_FLAG_C) };
+
+	m_registers.a = static_cast<uint16_t>( (a + u + c) & 0xFF );
+	setFlags(
+		static_cast<char>(m_registers.a == 0),
+		0,
+		static_cast <char>((a & 0xF) + (u & 0xF) + c > 0xF),
+		static_cast <char>(a + u + c > 0xFF)
+		);
+}
+
 void CPU::XOR() 
 {
 	// Set A to the bitwise XOR between the value in fetchedData and A. One byte
