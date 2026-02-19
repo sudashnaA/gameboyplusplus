@@ -90,6 +90,8 @@ private:
 	void DEC();
 	void ADD();
 	void ADC();
+	void SUB();
+	void SBC();
 
 	// helper function that is used in instructions
 	void gotoAddr(uint16_t addr, bool pushpc);
@@ -115,8 +117,12 @@ private:
 		{IN_RETI, &CPU::RETI},
 		{IN_INC, &CPU::INC},
 		{IN_ADD, &CPU::ADD},
+		{IN_ADC, &CPU::ADC},
+		{IN_SUB, &CPU::SUB},
+		{IN_SBC, &CPU::SBC},
 		{IN_DEC, &CPU::DEC},
 		{IN_XOR, &CPU::XOR},
+
 	};
 
 	// 

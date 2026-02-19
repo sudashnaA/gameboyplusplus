@@ -558,6 +558,34 @@ void CPU::ADC()
 		);
 }
 
+void CPU::SUB()
+{
+	auto val{ static_cast<uint16_t>(readRegister(m_currInstruction->reg1) - m_fetchedData) };
+
+	auto z{ static_cast<char>(val == 0) };
+	auto h{ static_cast<char>( static_cast<int>(readRegister(m_currInstruction->reg1) & 0xF) - static_cast<int>(m_fetchedData & 0xF) < 0 ) };
+	auto c{ static_cast<char>( static_cast<int>(readRegister(m_currInstruction->reg1)) - static_cast<int>(m_fetchedData) < 0 ) };
+
+	setRegister(m_currInstruction->reg1, val);
+	setFlags(z, 1, h, c);
+}
+
+void CPU::SBC()
+{
+	auto val{ static_cast<uint16_t>(m_fetchedData + CPU_FLAG_C) };
+
+	auto z{ static_cast<char>(readRegister(m_currInstruction->reg1) - val == 0) };
+
+	auto h{ static_cast<char>(static_cast<int>(readRegister(m_currInstruction->reg1) & 0xF) - 
+		static_cast<int>(m_fetchedData & 0xF) - static_cast<int>(CPU_FLAG_C) < 0) };
+
+	auto c{ static_cast<char>(static_cast<int>(readRegister(m_currInstruction->reg1)) - 
+		static_cast<int>(m_fetchedData) - static_cast<int>(CPU_FLAG_C) < 0) };
+
+	setRegister(m_currInstruction->reg1, static_cast<uint16_t>(readRegister(m_currInstruction->reg1) - val));
+	setFlags(z, 1, h, c);
+}
+
 void CPU::XOR() 
 {
 	// Set A to the bitwise XOR between the value in fetchedData and A. One byte
