@@ -225,6 +225,7 @@ constexpr auto getInstructions()
     instructions[0xBE] = { IN_CP, AM_R_MR, RT_A, RT_HL };
     instructions[0xBF] = { IN_CP, AM_R_R, RT_A, RT_A };
 
+    // 0xCX
     instructions[0xC0] = { IN_RET, AM_IMP, RT_NONE, RT_NONE, CT_NZ };
     instructions[0xC1] = { IN_POP, AM_R, RT_BC };
     instructions[0xC2] = { IN_JP, AM_D16, RT_NONE, RT_NONE, CT_NZ };

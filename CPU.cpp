@@ -90,7 +90,7 @@ void CPU::fetchData()
 	case AM_R_D8:
 		m_fetchedData = busRead(m_registers.pc);
 		emulatorCycles(1);
-		++m_registers.pc;
+		m_registers.pc++;
 		return;
 
 	case AM_R_D16:
@@ -120,7 +120,7 @@ void CPU::fetchData()
 	case AM_R_MR: {
 		auto addr{ readRegister(m_currInstruction->reg2) };
 		
-		if (m_currInstruction->reg1 == RegisterType::RT_C) {
+		if (m_currInstruction->reg2 == RegisterType::RT_C) {
 			addr |= RT_C_OR_VALUE;
 		}
 
@@ -192,7 +192,7 @@ void CPU::fetchData()
 	case AM_D16_R: {
 		auto low{ static_cast<uint16_t>(busRead(m_registers.pc)) };
 		emulatorCycles(1);
-		auto high{ static_cast<uint16_t>(busRead(m_registers.pc) + 1) };
+		auto high{ static_cast<uint16_t>(busRead(m_registers.pc + 1u)) };
 		emulatorCycles(1);
 
 		m_memDest = static_cast<uint16_t>(low | (high << 8));
@@ -223,7 +223,7 @@ void CPU::fetchData()
 	case AM_R_A16: {
 		auto low{ static_cast<uint16_t>(busRead(m_registers.pc)) };
 		emulatorCycles(1);
-		auto high{ static_cast<uint16_t>(busRead(m_registers.pc) + 1) };
+		auto high{ static_cast<uint16_t>(busRead(m_registers.pc + 1u)) };
 		emulatorCycles(1);
 
 		auto addr{ static_cast<uint16_t>(low | (high << 8)) };
@@ -654,11 +654,11 @@ bool CPU::checkCondition() const
 	// Based on the condition of the current instruction, return
 	// if it is true
 	switch (m_currInstruction->cond) {
-	case CT_NONE: return true;
-	case CT_C: return c;
-	case CT_NC: return !c;
-	case CT_Z: return z;
-	case CT_NZ:	 return !z;
+		case CT_NONE: return true;
+		case CT_C: return c;
+		case CT_NC: return !c;
+		case CT_Z: return z;
+		case CT_NZ:	 return !z;
 	}
 
 	return false;
@@ -722,7 +722,6 @@ void CPU::busWrite16(uint16_t address, uint16_t value)
 void CPU::stackPush(uint8_t data)
 {
 	m_registers.sp--;
-
 	busWrite(m_registers.sp, data);
 }
 
