@@ -12,11 +12,11 @@ public:
 	int run(std::string path);
 	void emulatorCycles(int cpuCycles);
 	void init();
+	uint64_t m_ticks{ 0 };
 
 private:
 	bool m_running{ false };
 	bool m_paused{ true };
-	uint64_t m_ticks{ 0 };
 
 	std::shared_ptr<Cart> m_cart;
 	std::shared_ptr<CPU> m_cpu;

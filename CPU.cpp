@@ -27,30 +27,34 @@ bool CPU::cpuStep()
 {
 	if (!m_halted) 
 	{
-		/*if (curr == 100) {
-			exit(-10);
-		}*/
-
 		auto pc = m_registers.pc;
 
 		fetchInstruction();
+		emulatorCycles(1);
 		fetchData();
 
-		//printf("Executing Instruction: %02X   PC: %04X\n", m_curOpcode, pc);
+		std::string flags{std::format("{}{}{}{}",
+			(m_registers.f & (1 << 7)) ? 'Z' : '-',
+			(m_registers.f & (1 << 6)) ? 'N' : '-',
+			(m_registers.f & (1 << 5)) ? 'H' : '-',
+			(m_registers.f & (1 << 4)) ? 'C' : '-'
+		)};
 
-		printf("%04X: %-7s (%02X %02X %02X) A: %02X BC: %02X%02X DE: %02X%02X HL: %02X%02X\n",
-			pc, instructionName(m_currInstruction->type), m_curOpcode,
-			busRead(pc + 1u), (busRead(pc + 2u)),
-			m_registers.a, m_registers.b, m_registers.c,
-			m_registers.d, m_registers.e, m_registers.h, m_registers.l
-		);
+		//printf("Executing Instruction: %02X   PC: %04X\n", m_curOpcode, pc);
+		
+		printf("%08lX - %04X: %-7s (%02X %02X %02X) A: %02X F: %s BC: %02X%02X DE: %02X%02X HL: %02X%02X\n", 
+			static_cast<unsigned long>(m_pEmu->m_ticks), 
+			pc, instructionName(m_currInstruction->type), m_curOpcode, 
+			busRead(pc + 1u), busRead(pc + 2u), 
+			m_registers.a, flags.c_str(), m_registers.b, m_registers.c, 
+			m_registers.d, m_registers.e, m_registers.h, m_registers.l);
+
 		if (m_currInstruction == nullptr) {
 			printf("Unknown Instruction! %02X\n", m_curOpcode);
 			exit(-7);
 		}
 
 		execute();
-		curr++;
 	}
 
 	return true;
@@ -347,11 +351,7 @@ void CPU::setRegister(RegisterType type, uint16_t val) noexcept {
 
 void CPU::emulatorCycles(int cpuCycles)
 {
-	auto ptr{ m_pEmu.lock() };
-	if (ptr) {
-		ptr->emulatorCycles(cpuCycles);
-		return;
-	}
+	m_pEmu->emulatorCycles(cpuCycles);
 }
 
 // instructions
@@ -424,9 +424,8 @@ void CPU::LDH()
 {
 	if (m_currInstruction->reg1 == RegisterType::RT_A) {
 		setRegister(m_currInstruction->reg1, busRead(static_cast<uint16_t>(0xFF00 | m_fetchedData)));
-	}
-	else {
-		busWrite(static_cast<uint16_t>(0xFF00 | m_fetchedData), m_registers.a);
+	} else {
+		busWrite(m_memDest, m_registers.a);
 	}
 
 	emulatorCycles(1);
@@ -437,6 +436,7 @@ void CPU::POP()
 	auto low{ static_cast<uint16_t>(stackPop()) };
 	emulatorCycles(1);
 	auto high{ static_cast<uint16_t>(stackPop()) };
+	emulatorCycles(1);
 
 	auto n{ static_cast<uint16_t>(high << 8 | low) };
 	setRegister(m_currInstruction->reg1, n);
@@ -471,8 +471,7 @@ void CPU::INC()
 		val = static_cast<uint16_t>(busRead(readRegister(RegisterType::RT_HL)) + 1);
 		val &= 0xFF;
 		busWrite(readRegister(RegisterType::RT_HL), static_cast<uint8_t>(val));
-	}
-	else {
+	} else {
 		setRegister(m_currInstruction->reg1, val);
 		val = readRegister(m_currInstruction->reg1);
 	}
@@ -524,7 +523,7 @@ void CPU::ADD()
 
 	auto z{ static_cast<int>((val & 0xFF) == 0) };
 	auto h{ static_cast<int>( (readRegister(m_currInstruction->reg1) & 0xF) + (m_fetchedData & 0xF) >= 0x10 ) };
-	auto c{ static_cast<int>( static_cast<int>(readRegister(m_currInstruction->reg1) & 0xFF) + static_cast<int>(m_fetchedData & 0xFF) > 0x100 ) };
+	auto c{ static_cast<int>( static_cast<int>(readRegister(m_currInstruction->reg1) & 0xFF) + static_cast<int>(m_fetchedData & 0xFF) >= 0x100 ) };
 
 	if (is16) {
 		z = -1;
@@ -549,7 +548,8 @@ void CPU::ADC()
 	auto a{ static_cast<uint16_t>(m_registers.a) };
 	auto c{ static_cast<uint16_t>(CPU_FLAG_C) };
 
-	m_registers.a = static_cast<uint16_t>( (a + u + c) & 0xFF );
+	m_registers.a = static_cast<uint8_t>((a + u + c) & 0xFF);
+
 	setFlags(
 		static_cast<char>(m_registers.a == 0),
 		0,
@@ -572,7 +572,7 @@ void CPU::SUB()
 
 void CPU::SBC()
 {
-	auto val{ static_cast<uint16_t>(m_fetchedData + CPU_FLAG_C) };
+	auto val{ static_cast<uint8_t>(m_fetchedData + CPU_FLAG_C) };
 
 	auto z{ static_cast<char>(readRegister(m_currInstruction->reg1) - val == 0) };
 
@@ -597,13 +597,15 @@ void CPU::XOR()
 void CPU::LD()
 {
 	if (m_destIsMem) {
-		if (m_currInstruction->reg2 >= RegisterType::RT_AF) {
+		if (is16Bit(m_currInstruction->reg2)) {
 			// 16 bit register
 			emulatorCycles(1);
 			busWrite16(m_memDest, m_fetchedData);
 		} else {
 			busWrite(m_memDest, static_cast<uint8_t>(m_fetchedData));
 		}
+
+		emulatorCycles(1);
 
 		return;
 	}

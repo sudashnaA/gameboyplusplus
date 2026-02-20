@@ -54,7 +54,7 @@ private:
 	uint8_t m_ieRegister{};
 	std::unique_ptr<Instruction> m_currInstruction{};
 	std::weak_ptr<Bus> m_pBus;
-	std::weak_ptr<Emulator> m_pEmu;
+	std::shared_ptr<Emulator> m_pEmu;
 
 	uint16_t reverse(uint16_t val) const noexcept;
 	uint16_t readRegister(RegisterType type) noexcept;
@@ -122,7 +122,6 @@ private:
 		{IN_SBC, &CPU::SBC},
 		{IN_DEC, &CPU::DEC},
 		{IN_XOR, &CPU::XOR},
-
 	};
 
 	// 
